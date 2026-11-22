@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useMemo } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { 
   ShoppingBag, 
@@ -29,7 +30,7 @@ export function Navbar() {
   const pathname = usePathname();
   const { 
     currentUser, 
-    switchDemoUser, 
+    logout, 
     selectedCampus, 
     setSelectedCampus, 
     allInstitutions,
@@ -104,53 +105,36 @@ export function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200">
+    <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-soft">
       {/* Top Banner: Campus & Fast Switcher */}
-      <div className="bg-slate-900 text-slate-300 text-xs py-1 px-4">
+      <div className="bg-navy-950 text-slate-300 text-xs py-1.5 px-4 border-b border-navy-800/80">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 font-medium text-[11px]">
-              <Sparkles className="w-3 h-3 mr-1" /> PunarNova — Smart Campus Reuse
+            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 font-medium text-[11px] border border-sky-500/20">
+              <Sparkles className="w-3 h-3 mr-1 text-sky-400" /> PunarNova — Discover • Reuse • Grow
             </span>
-            <span className="hidden sm:inline text-slate-500">|</span>
-            <span className="hidden sm:inline text-slate-400">
-              Students get 0% commission & verified peer handovers.
+            <span className="hidden sm:inline text-slate-600">|</span>
+            <span className="hidden sm:inline text-slate-400 text-[11px]">
+              0% Commission • Campus Handover Safe
             </span>
           </div>
 
-          {/* Demo User Switcher */}
-          <div className="flex items-center space-x-2">
-            <span className="text-slate-500 text-[11px] hidden md:inline">Demo Switcher:</span>
-            <button
-              onClick={() => switchDemoUser('verified_student')}
-              className={`px-2 py-0.5 rounded text-[11px] transition ${
-                currentUser.role === 'student' && currentUser.verificationStatus === 'verified'
-                  ? 'bg-blue-600 text-white font-medium'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              Verified Student
-            </button>
-            <button
-              onClick={() => switchDemoUser('unverified_student')}
-              className={`px-2 py-0.5 rounded text-[11px] transition ${
-                currentUser.verificationStatus === 'pending'
-                  ? 'bg-amber-600 text-white font-medium'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              Pending
-            </button>
-            <button
-              onClick={() => switchDemoUser('admin')}
-              className={`px-2 py-0.5 rounded text-[11px] transition ${
-                currentUser.role === 'admin'
-                  ? 'bg-purple-600 text-white font-medium'
-                  : 'text-slate-400 hover:text-white hover:bg-slate-800'
-              }`}
-            >
-              Admin
-            </button>
+          {/* Real-time Status / User Info */}
+          <div className="flex items-center space-x-3 text-[11px]">
+            {currentUser ? (
+              <span className="text-slate-300">
+                Logged in as <strong className="text-white">{currentUser.fullName}</strong>
+                {currentUser.role === 'admin' ? (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">Admin</span>
+                ) : currentUser.verificationStatus === 'verified' ? (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">Verified Student</span>
+                ) : (
+                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">Pending Verification</span>
+                )}
+              </span>
+            ) : (
+              <span className="text-slate-400">Campus Peer-to-Peer Educational Exchange</span>
+            )}
           </div>
         </div>
       </div>
@@ -160,16 +144,23 @@ export function Navbar() {
         <div className="flex items-center justify-between h-16 gap-3">
           {/* Logo & Brand */}
           <div className="flex items-center space-x-4">
-            <Link href="/" className="flex items-center space-x-2 group">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-navy-900 to-brand-blue flex items-center justify-center text-white shadow-soft group-hover:scale-105 transition">
-                <Repeat className="w-5 h-5 text-brand-green" />
+            <Link href="/" className="flex items-center space-x-3 group">
+              <div className="w-10 h-10 rounded-xl overflow-hidden shadow-soft group-hover:scale-105 transition border border-slate-700/40 bg-navy-950 shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="PunarNova Logo"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-cover"
+                  priority
+                />
               </div>
               <div className="leading-tight">
                 <span className="text-lg font-bold tracking-tight text-navy-900 flex items-center">
-                  Punar<span className="text-brand-blue ml-1">Nova</span>
+                  Punar<span className="text-brand-blue ml-0.5">Nova</span>
                 </span>
                 <span className="text-[10px] block text-slate-500 font-medium tracking-wider uppercase">
-                  Verified Marketplace
+                  Discover • Reuse • Grow
                 </span>
               </div>
             </Link>
@@ -378,7 +369,7 @@ export function Navbar() {
               >
                 My Orders
               </Link>
-              {currentUser.role === 'admin' && (
+              {currentUser?.role === 'admin' && (
                 <Link 
                   href="/admin" 
                   className={`text-purple-600 hover:text-purple-700 transition flex items-center space-x-1 font-semibold ${pathname === '/admin' ? 'underline' : ''}`}
@@ -469,86 +460,124 @@ export function Navbar() {
               </span>
             </Link>
 
-            {/* User Profile Avatar / Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowUserMenu(!showUserMenu)}
-                className="flex items-center space-x-2 p-1 pl-2 rounded-xl border border-slate-200 hover:border-slate-300 transition"
-              >
-                <div className="text-right hidden sm:block">
-                  <p className="text-xs font-semibold text-navy-900 truncate max-w-[100px]">
-                    {currentUser.fullName}
-                  </p>
-                  <p className="text-[10px] text-slate-500 flex items-center justify-end">
-                    {currentUser.verificationStatus === 'verified' ? (
-                      <span className="text-brand-green flex items-center">
-                        <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Verified
-                      </span>
-                    ) : (
-                      <span className="text-amber-500 flex items-center">
-                        <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> Pending
-                      </span>
-                    )}
-                  </p>
-                </div>
-                <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
-                  {currentUser.avatarUrl ? (
-                    <img src={currentUser.avatarUrl} alt={currentUser.fullName} className="w-full h-full object-cover" />
-                  ) : (
-                    <UserIcon className="w-4 h-4 text-slate-500" />
-                  )}
-                </div>
-              </button>
-
-              {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-elevated border border-slate-100 py-2 z-50 text-xs">
-                  <div className="px-4 py-2 border-b border-slate-100">
-                    <p className="font-semibold text-navy-900">{currentUser.fullName}</p>
-                    <p className="text-slate-400 text-[11px] truncate">{currentUser.email}</p>
-                    <div className="mt-1">
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-brand-blue">
-                        {currentUser.institutionName}
-                      </span>
-                    </div>
+            {/* User Profile Avatar / Menu OR Sign In / Sign Up buttons */}
+            {currentUser ? (
+              <div className="relative">
+                <button
+                  onClick={() => setShowUserMenu(!showUserMenu)}
+                  className="flex items-center space-x-2 p-1 pl-2 rounded-xl border border-slate-200 hover:border-slate-300 transition"
+                >
+                  <div className="text-right hidden sm:block">
+                    <p className="text-xs font-semibold text-navy-900 truncate max-w-[110px]">
+                      {currentUser.fullName}
+                    </p>
+                    <p className="text-[10px] text-slate-500 flex items-center justify-end">
+                      {currentUser.role === 'admin' ? (
+                        <span className="text-purple-600 font-semibold flex items-center">
+                          Admin
+                        </span>
+                      ) : currentUser.verificationStatus === 'verified' ? (
+                        <span className="text-brand-green flex items-center">
+                          <CheckCircle2 className="w-2.5 h-2.5 mr-0.5" /> Verified
+                        </span>
+                      ) : (
+                        <span className="text-amber-500 flex items-center">
+                          <ShieldAlert className="w-2.5 h-2.5 mr-0.5" /> Pending
+                        </span>
+                      )}
+                    </p>
                   </div>
+                  <div className="w-8 h-8 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center overflow-hidden">
+                    {currentUser.avatarUrl ? (
+                      <img src={currentUser.avatarUrl} alt={currentUser.fullName} className="w-full h-full object-cover" />
+                    ) : (
+                      <UserIcon className="w-4 h-4 text-slate-500" />
+                    )}
+                  </div>
+                </button>
 
-                  <Link
-                    href="/verification"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <ShieldCheck className="w-4 h-4 mr-2 text-brand-blue" />
-                    <span>Student Verification Center</span>
-                  </Link>
-                  <Link
-                    href="/orders"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <ShoppingBag className="w-4 h-4 mr-2 text-slate-500" />
-                    <span>My Orders & Handover Codes</span>
-                  </Link>
-                  <Link
-                    href="/sustainability"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <Sparkles className="w-4 h-4 mr-2 text-brand-green" />
-                    <span>Sustainability Impact</span>
-                  </Link>
+                {showUserMenu && (
+                  <div className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-elevated border border-slate-100 py-2 z-50 text-xs">
+                    <div className="px-4 py-2 border-b border-slate-100">
+                      <p className="font-semibold text-navy-900">{currentUser.fullName}</p>
+                      <p className="text-slate-400 text-[11px] truncate">{currentUser.email}</p>
+                      {currentUser.institutionName && (
+                        <div className="mt-1">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-blue-50 text-brand-blue">
+                            {currentUser.institutionName}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
-                  <div className="border-t border-slate-100 my-1" />
+                    {currentUser.role === 'admin' && (
+                      <Link
+                        href="/admin"
+                        onClick={() => setShowUserMenu(false)}
+                        className="flex items-center px-4 py-2 hover:bg-slate-50 text-purple-700 font-semibold transition"
+                      >
+                        <ShieldCheck className="w-4 h-4 mr-2 text-purple-600" />
+                        <span>Admin Control Center</span>
+                      </Link>
+                    )}
 
-                  <Link
-                    href="/auth/signin"
-                    onClick={() => setShowUserMenu(false)}
-                    className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
-                  >
-                    <span>Sign Out / Switch Account</span>
-                  </Link>
-                </div>
-              )}
-            </div>
+                    <Link
+                      href="/verification"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <ShieldCheck className="w-4 h-4 mr-2 text-brand-blue" />
+                      <span>Student Verification Center</span>
+                    </Link>
+                    <Link
+                      href="/orders"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <ShoppingBag className="w-4 h-4 mr-2 text-slate-500" />
+                      <span>My Orders & Handover Codes</span>
+                    </Link>
+                    <Link
+                      href="/sustainability"
+                      onClick={() => setShowUserMenu(false)}
+                      className="flex items-center px-4 py-2 hover:bg-slate-50 text-slate-700 transition"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2 text-brand-green" />
+                      <span>Sustainability Impact</span>
+                    </Link>
+
+                    <div className="border-t border-slate-100 my-1" />
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowUserMenu(false);
+                        logout();
+                        router.push('/auth/signin');
+                      }}
+                      className="w-full text-left flex items-center px-4 py-2 hover:bg-rose-50 text-rose-600 font-medium transition"
+                    >
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link
+                  href="/auth/signin"
+                  className="px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-navy-900 border border-slate-200 hover:border-slate-300 rounded-xl transition"
+                >
+                  Sign In
+                </Link>
+                <Link
+                  href="/auth/signup"
+                  className="px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-blue hover:bg-blue-700 rounded-xl transition shadow-sm"
+                >
+                  Sign Up
+                </Link>
+              </div>
+            )}
 
             {/* Mobile menu button */}
             <button

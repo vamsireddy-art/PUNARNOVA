@@ -27,7 +27,7 @@ export function ProductCard({ product }: ProductCardProps) {
   };
 
   return (
-    <div className="group bg-white rounded-2xl border border-slate-200/80 hover:border-slate-300 shadow-card hover:shadow-elevated transition-all duration-200 flex flex-col overflow-hidden relative">
+    <div className="group bg-white rounded-2xl border border-slate-200/90 hover:border-blue-300 shadow-sm hover:shadow-elevated hover:-translate-y-0.5 transition-all duration-200 flex flex-col overflow-hidden relative">
       {/* Top Image Container */}
       <div className="relative aspect-[4/3] bg-slate-100 overflow-hidden">
         <img

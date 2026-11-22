@@ -8,7 +8,7 @@ export function SustainabilityWidget() {
   const [showExplanationModal, setShowExplanationModal] = useState(false);
 
   return (
-    <section className="bg-gradient-to-br from-navy-900 via-slate-900 to-navy-950 text-white rounded-2xl p-6 sm:p-8 shadow-elevated border border-slate-800 relative overflow-hidden">
+    <section className="bg-gradient-to-br from-navy-950 via-slate-900 to-navy-900 text-white rounded-3xl p-6 sm:p-8 shadow-elevated border border-blue-900/40 relative overflow-hidden">
       {/* Decorative background glow */}
       <div className="absolute -right-12 -top-12 w-64 h-64 rounded-full bg-brand-green/10 blur-3xl pointer-events-none" />
       <div className="absolute -left-12 -bottom-12 w-64 h-64 rounded-full bg-brand-blue/10 blur-3xl pointer-events-none" />

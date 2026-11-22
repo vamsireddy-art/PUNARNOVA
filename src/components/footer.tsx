@@ -1,6 +1,7 @@
 import React from 'react';
 import Link from 'next/link';
-import { Repeat, ShieldCheck, Heart, Sparkles, MapPin } from 'lucide-react';
+import Image from 'next/image';
+import { ShieldCheck, Heart, Sparkles, MapPin } from 'lucide-react';
 
 export function Footer() {
   return (
@@ -9,13 +10,24 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           {/* Brand & Purpose */}
           <div className="space-y-3 md:col-span-1">
-            <div className="flex items-center space-x-2">
-              <div className="w-8 h-8 rounded-lg bg-brand-blue flex items-center justify-center text-white">
-                <Repeat className="w-4 h-4 text-brand-green" />
+            <div className="flex items-center space-x-3">
+              <div className="w-9 h-9 rounded-xl overflow-hidden border border-slate-700 bg-navy-900 shrink-0">
+                <Image
+                  src="/logo.png"
+                  alt="PunarNova Logo"
+                  width={36}
+                  height={36}
+                  className="w-full h-full object-cover"
+                />
               </div>
-              <span className="text-base font-bold text-white tracking-tight">
-                Punar<span className="text-brand-blue">Nova</span>
-              </span>
+              <div className="leading-tight">
+                <span className="text-base font-bold text-white tracking-tight">
+                  Punar<span className="text-brand-blue ml-0.5">Nova</span>
+                </span>
+                <span className="text-[10px] block text-slate-400 tracking-wider">
+                  Discover • Reuse • Grow
+                </span>
+              </div>
             </div>
             <p className="text-slate-400 leading-relaxed text-xs">
               The premier circular economy student marketplace. Buy, sell, and exchange textbooks, calculators, and educational gear with verified peers at your institution.

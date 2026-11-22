@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { 
   Upload, 
   Sparkles, 
@@ -33,12 +34,8 @@ export default function SellWizardPage() {
   const [currentStep, setCurrentStep] = useState<number>(1);
   const [showVerificationModal, setShowVerificationModal] = useState(false);
 
-  // Step 1: Upload Images (3-5)
-  const [images, setImages] = useState<string[]>([
-    'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1611125832047-1d7ad1e8e485?w=800&auto=format&fit=crop&q=80',
-    'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=800&auto=format&fit=crop&q=80',
-  ]);
+  // Step 1: Upload Images (1-5 real item images)
+  const [images, setImages] = useState<string[]>([]);
 
   // Step 2: Questionnaire
   const [formData, setFormData] = useState({
@@ -101,7 +98,11 @@ export default function SellWizardPage() {
 
   // Step 6: Publish Listing
   const handlePublish = () => {
-    // Check verification guard
+    // Check login and verification guard
+    if (!currentUser) {
+      router.push('/auth/signin');
+      return;
+    }
     if (currentUser.verificationStatus !== 'verified') {
       setShowVerificationModal(true);
       return;
@@ -146,8 +147,26 @@ export default function SellWizardPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
-      {/* Verification Warning Banner if not verified */}
-      {currentUser.verificationStatus !== 'verified' && (
+      {/* Login / Verification Warning Banner */}
+      {!currentUser ? (
+        <div className="p-4 bg-blue-50 border border-blue-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-900">
+          <div className="flex items-center space-x-2">
+            <AlertCircle className="w-5 h-5 text-brand-blue shrink-0" />
+            <div>
+              <p className="font-bold">Sign In Required to List Products</p>
+              <p className="text-blue-700">
+                You must be signed in with your campus student account to publish listings on PunarNova.
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/auth/signin"
+            className="px-4 py-2 bg-brand-blue hover:bg-blue-600 text-white font-semibold rounded-xl shrink-0 transition"
+          >
+            Sign In Now
+          </Link>
+        </div>
+      ) : currentUser.verificationStatus !== 'verified' ? (
         <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
           <div className="flex items-center space-x-2">
             <AlertCircle className="w-5 h-5 text-amber-600 shrink-0" />
@@ -165,7 +184,7 @@ export default function SellWizardPage() {
             Verify Student ID Now
           </button>
         </div>
-      )}
+      ) : null}
 
       {/* Wizard Header & Stepper */}
       <div className="text-center space-y-2">
@@ -224,16 +243,18 @@ export default function SellWizardPage() {
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {images.map((img, idx) => (
-              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group">
-                <img src={img} alt={`Preview ${idx + 1}`} className="w-full h-full object-cover" />
+              <div key={idx} className="relative aspect-square rounded-xl overflow-hidden border border-slate-200 group bg-slate-100">
+                <img src={img} alt={`Uploaded item photo ${idx + 1}`} className="w-full h-full object-cover" />
                 <button
+                  type="button"
                   onClick={() => setImages(images.filter((_, i) => i !== idx))}
-                  className="absolute top-2 right-2 p-1 bg-black/60 text-white rounded-full opacity-0 group-hover:opacity-100 transition"
+                  className="absolute top-2 right-2 p-1.5 bg-black/70 hover:bg-red-600 text-white rounded-full opacity-90 group-hover:opacity-100 transition shadow"
+                  title="Remove photo"
                 >
                   <X className="w-3.5 h-3.5" />
                 </button>
                 <span className="absolute bottom-1 left-1 bg-black/60 text-white text-[9px] px-1.5 py-0.5 rounded">
-                  {idx === 0 ? 'Front' : idx === 1 ? 'Back' : idx === 2 ? 'Detail' : 'Angle'}
+                  {idx === 0 ? 'Primary' : idx === 1 ? 'Back' : idx === 2 ? 'Detail' : `Photo ${idx + 1}`}
                 </span>
               </div>
             ))}
@@ -241,14 +262,28 @@ export default function SellWizardPage() {
             {images.length < 5 && (
               <label className="aspect-square border-2 border-dashed border-slate-300 hover:border-brand-blue rounded-xl flex flex-col items-center justify-center cursor-pointer bg-slate-50 hover:bg-blue-50/50 transition p-4 text-center">
                 <Upload className="w-6 h-6 text-slate-400 mb-1" />
-                <span className="text-xs font-semibold text-slate-700">Add Photo</span>
-                <span className="text-[10px] text-slate-400 mt-0.5">3-5 recommended</span>
+                <span className="text-xs font-semibold text-slate-700">Upload Your Photo</span>
+                <span className="text-[10px] text-slate-400 mt-0.5">Select from your device</span>
                 <input
                   type="file"
                   accept="image/*"
+                  multiple
                   onChange={(e) => {
-                    if (e.target.files && e.target.files[0]) {
-                      setImages([...images, 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=800&auto=format&fit=crop&q=80']);
+                    if (e.target.files && e.target.files.length > 0) {
+                      const files = Array.from(e.target.files);
+                      files.forEach((file) => {
+                        const reader = new FileReader();
+                        reader.onload = (uploadEvent) => {
+                          if (uploadEvent.target?.result) {
+                            setImages((prev) => {
+                              if (prev.length >= 5) return prev;
+                              return [...prev, uploadEvent.target!.result as string];
+                            });
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      });
+                      e.target.value = '';
                     }
                   }}
                   className="hidden"
@@ -257,10 +292,15 @@ export default function SellWizardPage() {
             )}
           </div>
 
-          <div className="flex justify-end pt-4 border-t border-slate-100">
+          <div className="flex justify-between items-center pt-4 border-t border-slate-100">
+            <span className="text-xs text-slate-500">
+              {images.length === 0
+                ? 'Please upload at least 1 photo of your item to proceed.'
+                : `${images.length} photo(s) uploaded.`}
+            </span>
             <button
               onClick={() => setCurrentStep(2)}
-              disabled={images.length < 2}
+              disabled={images.length < 1}
               className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-semibold hover:bg-blue-600 disabled:opacity-50 transition flex items-center space-x-1.5"
             >
               <span>Next: Product Information</span>
@@ -699,13 +739,13 @@ export default function SellWizardPage() {
               <div className="border-t border-slate-200 pt-3 space-y-1.5 text-[11px] text-slate-600">
                 <div className="flex justify-between">
                   <span>Seller Verification:</span>
-                  <span className={currentUser.verificationStatus === 'verified' ? 'text-brand-green font-bold' : 'text-amber-600 font-bold'}>
-                    {currentUser.verificationStatus === 'verified' ? 'Verified Student ✓' : 'Verification Required'}
+                  <span className={currentUser?.verificationStatus === 'verified' ? 'text-brand-green font-bold' : 'text-amber-600 font-bold'}>
+                    {currentUser?.verificationStatus === 'verified' ? 'Verified Student ✓' : 'Verification Required'}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span>Institution:</span>
-                  <span className="font-medium text-slate-800">{currentUser.institutionName}</span>
+                  <span className="font-medium text-slate-800">{currentUser?.institutionName || 'Campus Partner'}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>Exchange Available:</span>

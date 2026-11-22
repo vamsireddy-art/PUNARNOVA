@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { 
   ShieldCheck, 
   Lock, 
@@ -17,10 +18,55 @@ import { useAppStore } from '@/lib/store';
 import { VerificationModal } from '@/components/verification-modal';
 
 export default function VerificationCenterPage() {
-  const { currentUser, verifications } = useAppStore();
+  const { currentUser, setCurrentUser, verifications } = useAppStore();
   const [showModal, setShowModal] = useState(false);
 
-  const myRequests = verifications.filter((v) => v.userId === currentUser.id);
+  // If user is verified by any approved submission in history, sync status immediately
+  const myRequests = currentUser
+    ? verifications.filter(
+        (v) =>
+          v.userId === currentUser.id ||
+          (currentUser.email && v.userEmail?.toLowerCase() === currentUser.email.toLowerCase())
+      )
+    : [];
+
+  const hasApprovedSubmission = myRequests.some((r) => r.status === 'verified');
+  const effectiveVerificationStatus =
+    currentUser?.verificationStatus === 'verified' || hasApprovedSubmission
+      ? 'verified'
+      : currentUser?.verificationStatus || 'not_verified';
+
+  // Synchronize state if approved submission found
+  React.useEffect(() => {
+    if (currentUser && hasApprovedSubmission && currentUser.verificationStatus !== 'verified') {
+      setCurrentUser({
+        ...currentUser,
+        verificationStatus: 'verified',
+        isEmailVerified: true,
+        isMobileVerified: true,
+      });
+    }
+  }, [currentUser, hasApprovedSubmission, setCurrentUser]);
+
+  if (!currentUser) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
+        <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue mx-auto flex items-center justify-center">
+          <ShieldCheck className="w-6 h-6" />
+        </div>
+        <h2 className="text-xl font-bold text-navy-900">Sign In to Access Verification</h2>
+        <p className="text-xs text-slate-500">
+          Please sign in to view your student verification status or submit your student ID card.
+        </p>
+        <Link
+          href="/auth/signin"
+          className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition"
+        >
+          Sign In Now
+        </Link>
+      </div>
+    );
+  }
 
   const statusConfigs: Record<string, { label: string; color: string; icon: any }> = {
     verified: {
@@ -45,7 +91,7 @@ export default function VerificationCenterPage() {
     },
   };
 
-  const currentStatusConfig = statusConfigs[currentUser.verificationStatus] || statusConfigs.not_verified;
+  const currentStatusConfig = statusConfigs[effectiveVerificationStatus] || statusConfigs.not_verified;
   const StatusIcon = currentStatusConfig.icon;
 
   return (
@@ -82,12 +128,12 @@ export default function VerificationCenterPage() {
             </div>
           </div>
 
-          {currentUser.verificationStatus !== 'verified' && (
+          {effectiveVerificationStatus !== 'verified' && (
             <button
               onClick={() => setShowModal(true)}
               className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition shadow-soft shrink-0"
             >
-              {currentUser.verificationStatus === 'pending' ? 'Update Documents' : 'Submit Student ID'}
+              {effectiveVerificationStatus === 'pending' ? 'Update Documents' : 'Submit Student ID'}
             </button>
           )}
         </div>

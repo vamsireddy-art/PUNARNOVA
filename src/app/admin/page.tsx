@@ -20,6 +20,7 @@ import {
   Eye
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
+import { OrderStatus } from '@/types';
 
 export default function AdminDashboardPage() {
   const { 
@@ -27,14 +28,16 @@ export default function AdminDashboardPage() {
     verifications, 
     reviewVerification, 
     products, 
-    orders 
+    orders,
+    updateOrderStatus
   } = useAppStore();
 
-  const [activeTab, setActiveTab] = useState<'verifications' | 'products' | 'ai_performance' | 'moderation'>('verifications');
+  const [activeTab, setActiveTab] = useState<'verifications' | 'orders' | 'products' | 'ai_performance' | 'moderation'>('verifications');
   const [selectedVerificationDoc, setSelectedVerificationDoc] = useState<any | null>(null);
+  const [statusUpdatingId, setStatusUpdatingId] = useState<string | null>(null);
 
   // RBAC Guard
-  if (currentUser.role !== 'admin') {
+  if (!currentUser || currentUser.role !== 'admin') {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 mx-auto flex items-center justify-center">
@@ -42,10 +45,15 @@ export default function AdminDashboardPage() {
         </div>
         <h2 className="text-xl font-bold text-navy-900">Admin Clearance Required</h2>
         <p className="text-xs text-slate-500">
-          This portal is restricted to institutional administrators and moderators.
+          This portal is restricted to institutional administrators. Please sign in with administrator credentials.
         </p>
-        <Link href="/" className="px-4 py-2 bg-brand-blue text-white rounded-xl text-xs font-semibold inline-block">
-          Switch to Admin Persona in Navbar Top Banner
+        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-left text-xs space-y-1">
+          <p className="font-semibold text-slate-700">Administrator Credentials:</p>
+          <p className="text-slate-600 font-mono text-[11px]">Email: admin@punarnova.in</p>
+          <p className="text-slate-600 font-mono text-[11px]">Password: Admin@PunarNova2026</p>
+        </div>
+        <Link href="/auth/signin" className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition">
+          Sign In as Administrator
         </Link>
       </div>
     );
@@ -128,7 +136,18 @@ export default function AdminDashboardPage() {
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          Student Verifications Queue ({pendingVerifications.length})
+          Student Verifications ({pendingVerifications.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('orders')}
+          className={`pb-3 transition ${
+            activeTab === 'orders'
+              ? 'border-b-2 border-brand-blue text-brand-blue'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          Orders & Handovers ({orders.length})
         </button>
 
         <button
@@ -211,6 +230,140 @@ export default function AdminDashboardPage() {
                     >
                       Reject with Reason
                     </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* TAB: ORDERS & HANDOVERS MANAGEMENT */}
+      {activeTab === 'orders' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="font-bold text-navy-900 text-base">
+                Campus Orders & Physical Handover Management ({orders.length})
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Admin controls: Confirm placed orders, advance to ready for handover, and mark completed upon physical exchange.
+              </p>
+            </div>
+            <Link
+              href="/orders"
+              className="text-xs text-brand-blue font-semibold hover:underline flex items-center"
+            >
+              <span>Open Full Orders Console →</span>
+            </Link>
+          </div>
+
+          {orders.length === 0 ? (
+            <div className="text-center py-10 text-xs text-slate-400">
+              No orders placed yet across the campus network.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {orders.map((o) => (
+                <div key={o.id} className="p-4 rounded-xl border border-slate-200 hover:border-slate-300 transition space-y-3 text-xs bg-slate-50/50">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div className="flex items-center space-x-2">
+                      <span className="font-mono font-bold text-navy-900 text-sm">{o.orderNumber}</span>
+                      <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                        o.orderStatus === 'completed'
+                          ? 'bg-emerald-100 text-emerald-800'
+                          : o.orderStatus === 'confirmed'
+                          ? 'bg-blue-100 text-blue-800'
+                          : o.orderStatus === 'ready_for_handover' || o.orderStatus === 'ready_for_pickup'
+                          ? 'bg-purple-100 text-purple-800'
+                          : o.orderStatus === 'created'
+                          ? 'bg-amber-100 text-amber-800'
+                          : 'bg-slate-100 text-slate-700'
+                      }`}>
+                        {o.orderStatus.toUpperCase()}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center space-x-3 text-[11px] text-slate-500">
+                      <span>Total: <strong className="text-brand-blue font-bold">₹{o.totalAmount.toLocaleString('en-IN')}</strong></span>
+                      <span>Handover OTP: <strong className="font-mono text-slate-800">#{o.pickupCode}</strong></span>
+                      <span>{new Date(o.createdAt).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 bg-white rounded-lg border border-slate-100 text-[11px]">
+                    <div>
+                      <p className="text-slate-400 font-medium">Buyer & Delivery Address:</p>
+                      <p className="font-bold text-slate-800 mt-0.5">{o.buyerName}</p>
+                      <p className="text-slate-600 mt-0.5 leading-normal">{o.deliveryAddress || 'Campus Peer Handover Point'}</p>
+                    </div>
+                    <div>
+                      <p className="text-slate-400 font-medium">Seller & Items:</p>
+                      <p className="font-bold text-slate-800 mt-0.5">{o.sellerName}</p>
+                      <p className="text-slate-600 mt-0.5">
+                        {o.items.map((it) => `${it.product.title} (x${it.quantity})`).join(', ')}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Admin Order Control Actions */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-slate-200/60">
+                    <span className="text-[11px] text-slate-500 font-semibold">Change Lifecycle State:</span>
+                    <div className="flex flex-wrap items-center gap-2">
+                      {o.orderStatus === 'created' && (
+                        <button
+                          onClick={() => {
+                            setStatusUpdatingId(o.id);
+                            updateOrderStatus(o.id, 'confirmed');
+                            setTimeout(() => setStatusUpdatingId(null), 300);
+                          }}
+                          disabled={statusUpdatingId === o.id}
+                          className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-lg text-[11px] transition shadow-sm"
+                        >
+                          ✓ Confirm Order
+                        </button>
+                      )}
+
+                      {(o.orderStatus === 'confirmed' || o.orderStatus === 'created') && (
+                        <button
+                          onClick={() => {
+                            setStatusUpdatingId(o.id);
+                            updateOrderStatus(o.id, 'ready_for_handover');
+                            setTimeout(() => setStatusUpdatingId(null), 300);
+                          }}
+                          disabled={statusUpdatingId === o.id}
+                          className="px-3 py-1.5 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-lg text-[11px] transition shadow-sm"
+                        >
+                          Mark Ready for Handover
+                        </button>
+                      )}
+
+                      {(o.orderStatus === 'ready_for_handover' || o.orderStatus === 'ready_for_pickup' || o.orderStatus === 'confirmed') && (
+                        <button
+                          onClick={() => {
+                            setStatusUpdatingId(o.id);
+                            updateOrderStatus(o.id, 'completed');
+                            setTimeout(() => setStatusUpdatingId(null), 300);
+                          }}
+                          disabled={statusUpdatingId === o.id}
+                          className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-[11px] transition shadow-sm"
+                        >
+                          ✓ Mark Completed
+                        </button>
+                      )}
+
+                      <select
+                        value={o.orderStatus}
+                        onChange={(e) => updateOrderStatus(o.id, e.target.value as OrderStatus)}
+                        className="p-1 rounded-lg border border-slate-200 bg-white text-[11px] font-semibold text-slate-700"
+                      >
+                        <option value="created">Placed (created)</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="ready_for_handover">Ready for Handover</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
                   </div>
                 </div>
               ))}

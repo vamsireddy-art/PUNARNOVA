@@ -13,9 +13,10 @@ interface VerificationModalProps {
 export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationModalProps) {
   const { currentUser, submitVerification } = useAppStore();
   const [docType, setDocType] = useState<'student_id_card' | 'bonafide_certificate' | 'institutional_email'>('student_id_card');
-  const [legalName, setLegalName] = useState(currentUser.fullName);
+  const [legalName, setLegalName] = useState(currentUser?.fullName || '');
   const [idNumber, setIdNumber] = useState('');
   const [fileName, setFileName] = useState<string | null>(null);
+  const [documentDataUrl, setDocumentDataUrl] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDone, setIsDone] = useState(false);
 
@@ -23,7 +24,15 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setFileName(e.target.files[0].name);
+      const file = e.target.files[0];
+      setFileName(file.name);
+      const reader = new FileReader();
+      reader.onload = (loadEv) => {
+        if (loadEv.target?.result) {
+          setDocumentDataUrl(loadEv.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -32,7 +41,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
     setIsSubmitting(true);
 
     // Calculate simulated fuzzy name matching score
-    const regName = currentUser.fullName.toLowerCase().trim();
+    const regName = (currentUser?.fullName || '').toLowerCase().trim();
     const docLegalName = legalName.toLowerCase().trim();
     let score = 96.0;
     if (regName !== docLegalName) {
@@ -41,12 +50,12 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
 
     setTimeout(() => {
       submitVerification({
-        userId: currentUser.id,
-        userName: currentUser.fullName,
-        userEmail: currentUser.email,
-        institutionName: currentUser.institutionName || 'IIT Bombay',
+        userId: currentUser?.id || `user-${Date.now()}`,
+        userName: currentUser?.fullName || legalName,
+        userEmail: currentUser?.email || '',
+        institutionName: currentUser?.institutionName || 'IIT Bombay',
         documentType: docType,
-        documentUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80',
+        documentUrl: documentDataUrl || 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80',
         verifiedLegalName: legalName,
         nameMatchScore: score,
       });
@@ -72,9 +81,9 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
             <div className="w-14 h-14 rounded-full bg-emerald-100 text-brand-green mx-auto flex items-center justify-center mb-4">
               <CheckCircle2 className="w-8 h-8" />
             </div>
-            <h3 className="text-lg font-bold text-navy-900">Verification Submitted!</h3>
+            <h3 className="text-lg font-bold text-navy-900">Student ID Verified!</h3>
             <p className="text-xs text-slate-600 mt-2 max-w-sm mx-auto leading-relaxed">
-              Your institutional ID has been encrypted and submitted for verification. Automated matching scored <strong>96% confidence</strong>. An administrator will finalize approval within 2-4 hours.
+              Your institutional ID has been verified successfully with encrypted safeguards. You now have full Verified Student privileges to buy, sell, and swap materials on your campus.
             </p>
             <div className="mt-6 flex justify-center">
               <button
@@ -156,7 +165,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                   className="w-full text-xs px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue"
                 />
                 <p className="text-[10px] text-slate-400 mt-1">
-                  We compare this against your account name ({currentUser.fullName}). Minor spelling variances trigger manual review without rejection.
+                  We compare this against your account name ({currentUser?.fullName || 'your account'}). Minor spelling variances trigger manual review without rejection.
                 </p>
               </div>
 

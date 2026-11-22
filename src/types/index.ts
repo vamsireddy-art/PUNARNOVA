@@ -13,7 +13,7 @@ export type ProductCondition = 'Like New' | 'Excellent' | 'Good' | 'Fair' | 'Nee
 
 export type ProductStatus = 'available' | 'reserved' | 'sold' | 'archived' | 'delisted';
 
-export type OrderStatus = 'created' | 'confirmed' | 'ready_for_pickup' | 'completed' | 'cancelled';
+export type OrderStatus = 'created' | 'confirmed' | 'ready_for_handover' | 'ready_for_pickup' | 'completed' | 'cancelled';
 
 export type PaymentMethod = 'razorpay' | 'upi' | 'cash_on_pickup';
 

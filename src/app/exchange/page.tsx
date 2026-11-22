@@ -27,23 +27,7 @@ export default function ExchangeMarketplacePage() {
   const [exchangeNote, setExchangeNote] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const [activeExchanges, setActiveExchanges] = useState<ProductExchange[]>([
-    {
-      id: 'ex-1',
-      requesterId: 'user-2',
-      requesterName: 'Priya Patel',
-      offeredProduct: {
-        ...products[2],
-        title: 'Microeconomics (Mankiw 8th Edition)',
-      },
-      targetProduct: products[0],
-      ownerId: 'user-1',
-      ownerName: 'Aarav Sharma',
-      status: 'proposed',
-      notes: 'Willing to swap my Economics reference for your Casio fx-991EX calculator!',
-      createdAt: '2026-11-18T16:00:00Z',
-    },
-  ]);
+  const [activeExchanges, setActiveExchanges] = useState<ProductExchange[]>([]);
 
   const handleProposeSwap = (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,12 +35,31 @@ export default function ExchangeMarketplacePage() {
 
     const newExchange: ProductExchange = {
       id: `ex-${Date.now()}`,
-      requesterId: currentUser.id,
-      requesterName: currentUser.fullName,
+      requesterId: currentUser?.id || 'guest',
+      requesterName: currentUser?.fullName || 'Student',
       offeredProduct: {
-        ...products[0],
-        id: `mock-offered-${Date.now()}`,
+        id: `offered-${Date.now()}`,
+        sellerId: currentUser?.id || 'guest',
+        sellerName: currentUser?.fullName || 'Student',
+        sellerVerificationStatus: currentUser?.verificationStatus || 'not_verified',
+        institutionId: currentUser?.institutionId || 'inst-1',
+        institutionName: currentUser?.institutionName || 'Campus Partner',
+        categoryId: 'cat-exchange',
+        categoryName: 'Books & Coursework',
         title: myOfferedProductTitle.trim(),
+        description: exchangeNote,
+        brand: 'Academic',
+        condition: 'Good',
+        originalPrice: 500,
+        sellingPrice: 0,
+        images: [],
+        status: 'available',
+        isNegotiable: false,
+        isExchangeAvailable: true,
+        deliveryAvailable: false,
+        viewCount: 0,
+        wishlistCount: 0,
+        createdAt: new Date().toISOString(),
       },
       targetProduct: selectedTargetProduct,
       ownerId: selectedTargetProduct.sellerId,

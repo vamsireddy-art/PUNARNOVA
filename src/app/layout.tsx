@@ -8,6 +8,10 @@ import { Footer } from '@/components/footer';
 export const metadata: Metadata = {
   title: 'PunarNova - Verified Student Second-Hand Marketplace',
   description: 'Buy, sell, and exchange pre-owned textbooks, scientific calculators, and educational gear with verified peers at your institution. Powered by AI price estimation.',
+  icons: {
+    icon: '/logo.png',
+    apple: '/logo.png',
+  },
 };
 
 export default function RootLayout({

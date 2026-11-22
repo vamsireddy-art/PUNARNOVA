@@ -6,6 +6,7 @@ import {
   Product, 
   CartItem, 
   Order, 
+  OrderStatus,
   Conversation, 
   Message, 
   VerificationRequest, 
@@ -14,6 +15,7 @@ import {
   NotificationItem,
   Institution
 } from '@/types';
+import { updateRegisteredAccountVerification } from './auth';
 import { MOCK_USERS, MOCK_PRODUCTS, MOCK_INSTITUTIONS, MOCK_NOTIFICATIONS } from './mock-data';
 
 const STORAGE_KEYS = {
@@ -79,16 +81,16 @@ const INITIAL_CONVERSATIONS: Conversation[] = [
 ];
 
 export function useAppStore() {
-  const [currentUser, setCurrentUserState] = useState<User>(MOCK_USERS[0]);
+  const [currentUser, setCurrentUserState] = useState<User | null>(null);
   const [selectedCampus, setSelectedCampusState] = useState<Institution | null>(MOCK_INSTITUTIONS[0]);
   const [customInstitutions, setCustomInstitutionsState] = useState<Institution[]>([]);
-  const [products, setProductsState] = useState<Product[]>(MOCK_PRODUCTS);
+  const [products, setProductsState] = useState<Product[]>([]);
   const [cart, setCartState] = useState<CartItem[]>([]);
-  const [wishlist, setWishlistState] = useState<string[]>(['prod-1', 'prod-2']);
+  const [wishlist, setWishlistState] = useState<string[]>([]);
   const [orders, setOrdersState] = useState<Order[]>([]);
-  const [verifications, setVerificationsState] = useState<VerificationRequest[]>(INITIAL_VERIFICATIONS);
-  const [conversations, setConversationsState] = useState<Conversation[]>(INITIAL_CONVERSATIONS);
-  const [notifications, setNotificationsState] = useState<NotificationItem[]>(MOCK_NOTIFICATIONS);
+  const [verifications, setVerificationsState] = useState<VerificationRequest[]>([]);
+  const [conversations, setConversationsState] = useState<Conversation[]>([]);
+  const [notifications, setNotificationsState] = useState<NotificationItem[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load from localStorage on client mount
@@ -96,8 +98,33 @@ export function useAppStore() {
     if (typeof window === 'undefined') return;
 
     try {
+      const savedVerifications = localStorage.getItem(STORAGE_KEYS.VERIFICATIONS);
+      const parsedVerifs: VerificationRequest[] = savedVerifications ? JSON.parse(savedVerifications) : [];
+      if (savedVerifications) setVerificationsState(parsedVerifs);
+
       const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
-      if (savedUser) setCurrentUserState(JSON.parse(savedUser));
+      if (savedUser) {
+        let parsedUser: User = JSON.parse(savedUser);
+        // Automatically reconcile verification status: if any approved verification exists for this user, mark as verified!
+        if (parsedVerifs.length > 0) {
+          const hasApproved = parsedVerifs.some(
+            (v) =>
+              (v.userId === parsedUser.id || (parsedUser.email && v.userEmail?.toLowerCase() === parsedUser.email.toLowerCase())) &&
+              v.status === 'verified'
+          );
+          if (hasApproved && parsedUser.verificationStatus !== 'verified') {
+            parsedUser = {
+              ...parsedUser,
+              verificationStatus: 'verified',
+              isEmailVerified: true,
+              isMobileVerified: true,
+            };
+            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+            updateRegisteredAccountVerification(parsedUser.id, parsedUser.email, 'verified');
+          }
+        }
+        setCurrentUserState(parsedUser);
+      }
 
       const savedCampus = localStorage.getItem(STORAGE_KEYS.CAMPUS);
       if (savedCampus) setSelectedCampusState(JSON.parse(savedCampus));
@@ -117,9 +144,6 @@ export function useAppStore() {
       const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (savedOrders) setOrdersState(JSON.parse(savedOrders));
 
-      const savedVerifications = localStorage.getItem(STORAGE_KEYS.VERIFICATIONS);
-      if (savedVerifications) setVerificationsState(JSON.parse(savedVerifications));
-
       const savedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS);
       if (savedConversations) setConversationsState(JSON.parse(savedConversations));
 
@@ -133,19 +157,25 @@ export function useAppStore() {
   }, []);
 
   // Update Current User
-  const setCurrentUser = (user: User) => {
+  const setCurrentUser = (user: User | null) => {
     setCurrentUserState(user);
     if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      if (user) {
+        localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+      } else {
+        localStorage.removeItem(STORAGE_KEYS.USER);
+      }
     }
   };
 
-  // Switch demo user
-  const switchDemoUser = (role: 'verified_student' | 'unverified_student' | 'admin') => {
-    let target = MOCK_USERS[0];
-    if (role === 'unverified_student') target = MOCK_USERS[1];
-    if (role === 'admin') target = MOCK_USERS[2];
-    setCurrentUser(target);
+  // Sign out user
+  const logout = () => {
+    setCurrentUser(null);
+  };
+
+  // Deprecated demo switcher (kept for backwards compatibility)
+  const switchDemoUser = (_role: 'verified_student' | 'unverified_student' | 'admin') => {
+    // No-op in real-time mode
   };
 
   // Select Campus
@@ -192,7 +222,7 @@ export function useAppStore() {
     // Add seller sales count & notification
     addNotification({
       id: `notif-${Date.now()}`,
-      userId: currentUser.id,
+      userId: currentUser?.id || 'guest',
       title: 'Listing Published Successfully!',
       message: `"${newProduct.title}" is now visible to students across ${newProduct.institutionName}.`,
       type: 'system',
@@ -295,7 +325,7 @@ export function useAppStore() {
     // Trigger Notification
     addNotification({
       id: `notif-${Date.now()}`,
-      userId: currentUser.id,
+      userId: currentUser?.id || 'guest',
       title: 'Order Confirmed!',
       message: `Order #${newOrder.orderNumber} placed successfully. Handover code: ${newOrder.pickupCode}.`,
       type: 'order_update',
@@ -325,12 +355,57 @@ export function useAppStore() {
     }
   };
 
+  // Update Order Status (for Admin & Seller/Buyer coordination)
+  const updateOrderStatus = (orderId: string, status: OrderStatus, notes?: string) => {
+    const updatedOrders = orders.map((o) => {
+      if (o.id === orderId) {
+        return {
+          ...o,
+          orderStatus: status,
+        };
+      }
+      return o;
+    });
+    setOrdersState(updatedOrders);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
+    }
+
+    // Trigger Notification to buyer
+    const targetOrder = orders.find((o) => o.id === orderId);
+    if (targetOrder) {
+      const statusLabels: Record<string, string> = {
+        created: 'Order Placed',
+        confirmed: 'Order Confirmed by Admin',
+        ready_for_handover: 'Ready for Campus Handover',
+        ready_for_pickup: 'Ready for Pickup',
+        completed: 'Order Handover Completed',
+        cancelled: 'Order Cancelled',
+      };
+
+      addNotification({
+        id: `notif-${Date.now()}`,
+        userId: targetOrder.buyerId,
+        title: statusLabels[status] || 'Order Status Updated',
+        message: `Order #${targetOrder.orderNumber} status changed to ${status.replace(/_/g, ' ').toUpperCase()}.${notes ? ` Note: ${notes}` : ''}`,
+        type: 'order_update',
+        linkUrl: '/orders',
+        isRead: false,
+        createdAt: new Date().toISOString(),
+      });
+    }
+  };
+
   // Submit Verification Request
   const submitVerification = (req: Omit<VerificationRequest, 'id' | 'submittedAt' | 'status'>) => {
+    // If fuzzy score is >= 80%, automated match marks as verified immediately
+    const autoVerified = req.nameMatchScore >= 80;
+    const finalStatus: VerificationStatus = autoVerified ? 'verified' : 'pending';
+
     const newReq: VerificationRequest = {
       ...req,
       id: `verif-${Date.now()}`,
-      status: 'pending',
+      status: finalStatus,
       submittedAt: new Date().toISOString(),
     };
     const updated = [newReq, ...verifications];
@@ -339,21 +414,30 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.VERIFICATIONS, JSON.stringify(updated));
     }
 
-    // Update currentUser status to pending
-    const updatedUser: User = {
-      ...currentUser,
-      verificationStatus: 'pending',
-    };
-    setCurrentUser(updatedUser);
+    // Update currentUser and registered account permanently
+    if (currentUser) {
+      const updatedUser: User = {
+        ...currentUser,
+        verificationStatus: finalStatus,
+        verifiedLegalName: req.verifiedLegalName,
+        isEmailVerified: true,
+        isMobileVerified: true,
+      };
+      setCurrentUser(updatedUser);
+      updateRegisteredAccountVerification(updatedUser.id, updatedUser.email, finalStatus);
+    }
   };
 
   // Admin Review Verification
   const reviewVerification = (verifId: string, approve: boolean, reason?: string) => {
+    const finalStatus: VerificationStatus = approve ? 'verified' : 'rejected';
+    const target = verifications.find((v) => v.id === verifId);
+
     const updated = verifications.map((v) => {
       if (v.id === verifId) {
         return {
           ...v,
-          status: (approve ? 'verified' : 'rejected') as VerificationStatus,
+          status: finalStatus,
           rejectionReason: reason,
           reviewedAt: new Date().toISOString(),
         };
@@ -365,13 +449,20 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.VERIFICATIONS, JSON.stringify(updated));
     }
 
-    // If reviewing current user, update their profile
-    const target = verifications.find((v) => v.id === verifId);
-    if (target && target.userId === currentUser.id) {
-      setCurrentUser({
-        ...currentUser,
-        verificationStatus: approve ? 'verified' : 'rejected',
-      });
+    // Permanently update user in registered accounts database
+    if (target) {
+      updateRegisteredAccountVerification(target.userId, target.userEmail, finalStatus);
+      // If currently logged-in user matches target, update their active state
+      if (
+        currentUser &&
+        (currentUser.id === target.userId ||
+          (currentUser.email && currentUser.email.toLowerCase() === target.userEmail.toLowerCase()))
+      ) {
+        setCurrentUser({
+          ...currentUser,
+          verificationStatus: finalStatus,
+        });
+      }
     }
   };
 
@@ -379,6 +470,7 @@ export function useAppStore() {
     isInitialized,
     currentUser,
     setCurrentUser,
+    logout,
     switchDemoUser,
     selectedCampus,
     setSelectedCampus,
@@ -396,6 +488,7 @@ export function useAppStore() {
     toggleWishlist,
     orders,
     createOrder,
+    updateOrderStatus,
     verifications,
     submitVerification,
     reviewVerification,

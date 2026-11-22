@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { 
   Repeat, 
@@ -17,8 +18,9 @@ import {
   Sparkles,
   ArrowRight
 } from 'lucide-react';
-import { InstitutionType } from '@/types';
+import { InstitutionType, User } from '@/types';
 import { useAppStore } from '@/lib/store';
+import { registerAccount } from '@/lib/auth';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -42,35 +44,124 @@ export default function SignUpPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [otpSent, setOtpSent] = useState(false);
   const [otpVerified, setOtpVerified] = useState(false);
-  const [otpTimer, setOtpTimer] = useState(30);
+  const [otpTimer, setOtpTimer] = useState(0);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [otpSuccessMessage, setOtpSuccessMessage] = useState('');
+
+  // Countdown timer for resend cooldown
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    if (otpTimer > 0) {
+      interval = setInterval(() => {
+        setOtpTimer((prev) => (prev > 0 ? prev - 1 : 0));
+      }, 1000);
+    }
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [otpTimer]);
+
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async () => {
     if (!formData.email || !formData.email.includes('@')) {
       setErrorMessage('Please enter a valid educational/student email address.');
       return;
     }
     setErrorMessage('');
-    setOtpSent(true);
-    // Simulate automated OTP delivery to the student's email inbox
-    setTimeout(() => {
-      setFormData((prev) => ({ ...prev, otpCode: '5924' }));
-    }, 1000);
+    setOtpSuccessMessage('');
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('/api/otp/send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpSent(true);
+        setOtpVerified(false);
+        setOtpTimer(60); // 60s cooldown
+        setOtpSuccessMessage('Verification code sent! Please check your email inbox.');
+        setFormData((prev) => ({ ...prev, otpCode: '' }));
+      } else {
+        setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
+      }
+    } catch (e) {
+      setErrorMessage('Network error while sending OTP. Please check your connection.');
+    } finally {
+      setIsSendingOtp(false);
+    }
   };
 
-  const handleVerifyOtp = () => {
-    if (formData.otpCode === '5924' || formData.otpCode.length === 4) {
-      setOtpVerified(true);
-      setErrorMessage('');
-    } else {
-      setErrorMessage('Invalid OTP code. Please enter the 4-digit code sent to your email (Demo: 5924).');
+  const handleResendOtp = async () => {
+    if (otpTimer > 0) return;
+    if (!formData.email || !formData.email.includes('@')) {
+      setErrorMessage('Please enter a valid educational/student email address.');
+      return;
+    }
+    setErrorMessage('');
+    setOtpSuccessMessage('');
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch('/api/otp/resend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpTimer(60);
+        setOtpSuccessMessage('A new verification code has been sent to your email.');
+        setFormData((prev) => ({ ...prev, otpCode: '' }));
+      } else {
+        setErrorMessage(data.error || 'Failed to resend code.');
+      }
+    } catch (e) {
+      setErrorMessage('Network error while resending OTP.');
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
+  const handleVerifyOtp = async () => {
+    if (!formData.otpCode || formData.otpCode.trim().length !== 6) {
+      setErrorMessage('Please enter the 6-digit verification code you received.');
+      return;
+    }
+    setErrorMessage('');
+    setIsVerifyingOtp(true);
+    try {
+      const res = await fetch('/api/otp/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formData.email, otp: formData.otpCode.trim() }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setOtpVerified(true);
+        setOtpSuccessMessage('Email verified successfully!');
+        setErrorMessage('');
+      } else {
+        setErrorMessage(data.error || 'Invalid or expired OTP code.');
+      }
+    } catch (e) {
+      setErrorMessage('Network error while verifying OTP.');
+    } finally {
+      setIsVerifyingOtp(false);
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+
+    if (!otpVerified) {
+      setErrorMessage('Please verify your educational email with the OTP code first.');
+      return;
+    }
 
     if (formData.password !== formData.confirmPassword) {
       setErrorMessage('Passwords do not match.');
@@ -98,13 +189,12 @@ export default function SignUpPage() {
     }
 
     setTimeout(() => {
-      // Create user session
-      setCurrentUser({
+      // Create user session and register account credentials
+      const newUser: User = {
         id: `user-${Date.now()}`,
-        email: formData.email,
-        mobileNumber: formData.mobileNumber,
-        fullName: formData.fullName,
-        avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        email: formData.email.trim().toLowerCase(),
+        mobileNumber: formData.mobileNumber.trim(),
+        fullName: formData.fullName.trim(),
         institutionName: finalInstitutionName,
         institutionType: formData.institutionType,
         role: 'student',
@@ -116,25 +206,44 @@ export default function SignUpPage() {
         carbonSavedKg: 0,
         moneySavedInr: 0,
         createdAt: new Date().toISOString(),
-      });
+      };
+
+      registerAccount(newUser, formData.password);
+      setCurrentUser(newUser);
 
       setIsSubmitting(false);
       router.push('/');
-    }, 1200);
+    }, 1000);
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-slate-50">
-      <div className="max-w-xl w-full bg-white rounded-3xl border border-slate-200 p-8 shadow-elevated space-y-6">
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative overflow-hidden">
+      {/* Ambient background light matching PunarNova cosmic identity */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-xl w-full bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/80 p-8 shadow-elevated space-y-6 relative z-10">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center space-x-2">
-            <div className="w-10 h-10 rounded-xl bg-navy-900 text-white flex items-center justify-center">
-              <Repeat className="w-5 h-5 text-brand-green" />
+        <div className="text-center space-y-3">
+          <Link href="/" className="inline-flex flex-col items-center group">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-elevated border border-slate-700/40 bg-navy-950 mb-1 group-hover:scale-105 transition">
+              <Image
+                src="/logo.png"
+                alt="PunarNova Logo"
+                width={64}
+                height={64}
+                className="w-full h-full object-cover"
+                priority
+              />
             </div>
-            <span className="text-xl font-bold tracking-tight text-navy-900">
-              Punar<span className="text-brand-blue">Nova</span>
-            </span>
+            <div className="leading-tight">
+              <span className="text-xl font-bold tracking-tight text-navy-900">
+                Punar<span className="text-brand-blue ml-0.5">Nova</span>
+              </span>
+              <span className="text-[10px] block text-slate-500 font-medium tracking-wider uppercase">
+                Discover • Reuse • Grow
+              </span>
+            </div>
           </Link>
           <h1 className="text-2xl font-extrabold text-navy-900">Create Student Account</h1>
           <p className="text-xs text-slate-500">
@@ -142,32 +251,10 @@ export default function SignUpPage() {
           </p>
         </div>
 
-        {/* Google Quick Sign Up */}
-        <button
-          type="button"
-          onClick={() => {
-            setFormData({
-              ...formData,
-              fullName: 'Aarav Sharma',
-              email: 'aarav.sharma@iitb.ac.in',
-              mobileNumber: '+91 98765 43210',
-            });
-            setOtpVerified(true);
-          }}
-          className="w-full py-2.5 px-4 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-semibold text-slate-700 flex items-center justify-center space-x-2 transition"
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24">
-            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-            <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
-            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
-          </svg>
-          <span>Sign up with Google (Institutional Account)</span>
-        </button>
-
+        {/* Registration Form Divider */}
         <div className="relative flex items-center justify-center">
           <div className="border-t border-slate-200 w-full" />
-          <span className="bg-white px-3 text-[11px] text-slate-400 absolute">Or register with student email</span>
+          <span className="bg-white px-3 text-[11px] text-slate-400 absolute">Register with student email</span>
         </div>
 
         {errorMessage && (
@@ -203,52 +290,74 @@ export default function SignUpPage() {
                 <input
                   type="email"
                   required
+                  disabled={otpVerified}
                   placeholder="e.g. aarav.sharma@iitb.ac.in"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 disabled:bg-slate-100 disabled:text-slate-500"
                 />
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
               </div>
-              <button
-                type="button"
-                onClick={handleSendOtp}
-                className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium transition shrink-0"
-              >
-                {otpSent ? 'Resend OTP' : 'Send Email OTP'}
-              </button>
+              {!otpVerified && (
+                <button
+                  type="button"
+                  disabled={isSendingOtp || (otpSent && otpTimer > 0)}
+                  onClick={otpSent ? handleResendOtp : handleSendOtp}
+                  className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white rounded-xl font-medium transition shrink-0 text-xs sm:text-sm"
+                >
+                  {isSendingOtp
+                    ? 'Sending...'
+                    : otpSent
+                    ? otpTimer > 0
+                      ? `Resend (${otpTimer}s)`
+                      : 'Resend OTP'
+                    : 'Send Email OTP'}
+                </button>
+              )}
             </div>
+
+            {/* OTP Status Messages */}
+            {otpSuccessMessage && !otpVerified && (
+              <p className="text-xs text-blue-700 bg-blue-50 border border-blue-200 p-2 rounded-lg mt-2">
+                {otpSuccessMessage}
+              </p>
+            )}
 
             {/* Email OTP Input Box */}
             {otpSent && !otpVerified && (
               <div className="mt-2.5 p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-blue-900 text-[11px]">
-                    Enter 4-digit OTP sent to your email inbox (Demo: <strong>5924</strong>)
+                  <span className="font-medium text-blue-900 text-xs">
+                    Enter the 6-digit verification code sent to your email:
                   </span>
                 </div>
                 <div className="flex space-x-2">
                   <input
                     type="text"
-                    maxLength={4}
+                    maxLength={6}
+                    placeholder="123456"
                     value={formData.otpCode}
-                    onChange={(e) => setFormData({ ...formData, otpCode: e.target.value })}
-                    className="w-32 text-center font-mono font-bold tracking-widest text-sm p-1.5 rounded-lg border border-blue-300 bg-white"
+                    onChange={(e) => setFormData({ ...formData, otpCode: e.target.value.replace(/\D/g, '') })}
+                    className="w-36 text-center font-mono font-bold tracking-widest text-base p-2 rounded-lg border border-blue-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
                   />
                   <button
                     type="button"
+                    disabled={isVerifyingOtp || formData.otpCode.length !== 6}
                     onClick={handleVerifyOtp}
-                    className="px-3.5 py-1.5 bg-brand-blue hover:bg-blue-700 text-white rounded-lg font-semibold transition"
+                    className="px-4 py-2 bg-brand-blue hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-semibold text-xs transition"
                   >
-                    Verify Email OTP
+                    {isVerifyingOtp ? 'Verifying...' : 'Verify OTP'}
                   </button>
                 </div>
+                <p className="text-[11px] text-slate-500">
+                  Didn't receive the code? Check spam or click Resend {otpTimer > 0 ? `in ${otpTimer}s` : 'above'}.
+                </p>
               </div>
             )}
 
             {otpVerified && (
-              <p className="text-emerald-700 bg-emerald-50 border border-emerald-200/60 p-2 rounded-lg text-[11px] font-medium flex items-center mt-2">
-                <CheckCircle2 className="w-3.5 h-3.5 mr-1.5 text-emerald-600" />
+              <p className="text-emerald-700 bg-emerald-50 border border-emerald-200/60 p-2 rounded-lg text-xs font-medium flex items-center mt-2">
+                <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
                 Email address verified successfully via One-Time Password
               </p>
             )}

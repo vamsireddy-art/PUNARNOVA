@@ -56,3 +56,6 @@ coverage/
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
+
+# PunarNova local store
+.otp_store.json

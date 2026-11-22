@@ -20,7 +20,7 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
       senderId: product.sellerId,
       senderName: product.sellerName,
       messageType: 'text',
-      content: `Hi ${currentUser.fullName}! Thanks for your interest in "${product.title}". Let me know if you want to inspect it or arrange a campus handover!`,
+      content: `Hi ${currentUser?.fullName || 'there'}! Thanks for your interest in "${product.title}". Let me know if you want to inspect it or arrange a campus handover!`,
       createdAt: '10:00 AM',
     },
   ]);
@@ -39,8 +39,8 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
     const newMsg: Message = {
       id: `msg-${Date.now()}`,
       conversationId: `conv-${product.id}`,
-      senderId: currentUser.id,
-      senderName: currentUser.fullName,
+      senderId: currentUser?.id || 'guest',
+      senderName: currentUser?.fullName || 'Guest User',
       messageType: 'text',
       content: inputText.trim(),
       createdAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
@@ -71,8 +71,8 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
     const offerMsg: Message = {
       id: `msg-${Date.now()}`,
       conversationId: `conv-${product.id}`,
-      senderId: currentUser.id,
-      senderName: currentUser.fullName,
+      senderId: currentUser?.id || 'guest',
+      senderName: currentUser?.fullName || 'Guest User',
       messageType: 'price_offer',
       content: `Proposed counter-offer of ₹${amount.toLocaleString('en-IN')}`,
       offerAmount: amount,
@@ -89,7 +89,7 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
       id: `notif-${Date.now()}`,
       userId: product.sellerId,
       title: 'Counter Offer Received',
-      message: `${currentUser.fullName} made an offer of ₹${amount} for ${product.title}.`,
+      message: `${currentUser?.fullName || 'A student buyer'} made an offer of ₹${amount} for ${product.title}.`,
       type: 'chat_message',
       linkUrl: `/product/${product.id}`,
       isRead: false,
@@ -248,7 +248,7 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
           </div>
 
           {messages.map((m) => {
-            const isMe = m.senderId === currentUser.id;
+            const isMe = !!currentUser && m.senderId === currentUser.id;
             return (
               <div
                 key={m.id}

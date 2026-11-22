@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 export interface OtpRecord {
   email: string;
@@ -10,30 +11,65 @@ export interface OtpRecord {
   createdAt: string; // ISO string
 }
 
-const STORE_FILE = path.join(process.cwd(), '.otp_store.json');
-
-/**
- * Read the disk store fresh every time (no caching).
- * This is critical for Next.js dev mode where API routes compile in separate workers.
- */
-function readDiskStore(): Record<string, OtpRecord> {
-  try {
-    if (fs.existsSync(STORE_FILE)) {
-      const content = fs.readFileSync(STORE_FILE, 'utf-8');
-      const parsed = JSON.parse(content || '{}');
-      return parsed;
-    }
-  } catch (err) {
-    console.warn('[OtpStore] Could not read disk store:', err);
-  }
-  return {};
+// Global in-memory cache shared across warm serverless container invocations
+declare global {
+  // eslint-disable-next-line no-var
+  var __memoryOtpStore: Record<string, OtpRecord> | undefined;
 }
 
-function writeDiskStore(data: Record<string, OtpRecord>): void {
+if (!globalThis.__memoryOtpStore) {
+  globalThis.__memoryOtpStore = {};
+}
+
+/**
+ * Get writable path for OTP persistence.
+ * On Vercel / AWS Lambda, process.cwd() is strictly read-only; os.tmpdir() (/tmp) must be used.
+ */
+function getStoreFilePath(): string {
   try {
-    fs.writeFileSync(STORE_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME || process.env.NODE_ENV === 'production') {
+      return path.join(os.tmpdir(), '.otp_store.json');
+    }
+  } catch {
+    // fallback
+  }
+  return path.join(process.cwd(), '.otp_store.json');
+}
+
+/**
+ * Read the store from disk and/or global memory
+ */
+function readStore(): Record<string, OtpRecord> {
+  const memStore = globalThis.__memoryOtpStore || {};
+  const filePath = getStoreFilePath();
+
+  try {
+    if (fs.existsSync(filePath)) {
+      const content = fs.readFileSync(filePath, 'utf-8');
+      const parsed = JSON.parse(content || '{}');
+      // Merge disk and memory (disk overrides if newer)
+      return { ...memStore, ...parsed };
+    }
   } catch (err) {
-    console.warn('[OtpStore] Could not write disk store:', err);
+    // If filesystem read is restricted, return in-memory store
+  }
+
+  return { ...memStore };
+}
+
+/**
+ * Write to both disk and global memory
+ */
+function writeStore(data: Record<string, OtpRecord>): void {
+  // 1. Update in-memory cache
+  globalThis.__memoryOtpStore = { ...data };
+
+  // 2. Persist to disk (tmpdir on Vercel, cwd in local dev)
+  const filePath = getStoreFilePath();
+  try {
+    fs.writeFileSync(filePath, JSON.stringify(data, null, 2), 'utf-8');
+  } catch (err) {
+    console.warn('[OtpStore] Disk write notice (using memory store):', err);
   }
 }
 
@@ -54,29 +90,25 @@ export async function saveOtp(email: string, otpHash: string, ttlMs: number = 5 
     createdAt: now.toISOString(),
   };
 
-  // Always read fresh from disk, merge, and write back
-  const disk = readDiskStore();
-  disk[normalizedEmail] = record;
-  writeDiskStore(disk);
+  const store = readStore();
+  store[normalizedEmail] = record;
+  writeStore(store);
 
   console.log(`[OtpStore] Saved OTP for ${normalizedEmail}, expires at ${record.expiresAt}`);
 }
 
 /**
  * Retrieve the active OTP record for an email.
- * Always reads fresh from disk to handle Next.js multi-worker dev mode.
  */
 export async function getOtp(email: string): Promise<OtpRecord | null> {
   const normalizedEmail = email.trim().toLowerCase();
-
-  // Always read directly from disk — never rely on in-memory cache
-  const disk = readDiskStore();
-  const record = disk[normalizedEmail];
+  const store = readStore();
+  const record = store[normalizedEmail];
 
   if (record) {
-    console.log(`[OtpStore] Found OTP record for ${normalizedEmail}, expires at ${record.expiresAt}, attempts: ${record.attempts}`);
+    console.log(`[OtpStore] Found OTP record for ${normalizedEmail}, expires at ${record.expiresAt}`);
   } else {
-    console.log(`[OtpStore] No OTP record found for ${normalizedEmail}. Disk store keys: [${Object.keys(disk).join(', ')}]`);
+    console.log(`[OtpStore] No OTP record found for ${normalizedEmail}`);
   }
 
   return record || null;
@@ -87,13 +119,13 @@ export async function getOtp(email: string): Promise<OtpRecord | null> {
  */
 export async function incrementAttempts(email: string): Promise<number> {
   const normalizedEmail = email.trim().toLowerCase();
-  const disk = readDiskStore();
-  const record = disk[normalizedEmail];
+  const store = readStore();
+  const record = store[normalizedEmail];
 
   if (record) {
     record.attempts = (record.attempts ?? 0) + 1;
-    disk[normalizedEmail] = record;
-    writeDiskStore(disk);
+    store[normalizedEmail] = record;
+    writeStore(store);
     return record.attempts;
   }
 
@@ -101,31 +133,26 @@ export async function incrementAttempts(email: string): Promise<number> {
 }
 
 /**
- * Delete OTP record on successful verification or invalidation.
+ * Delete OTP record once successfully verified.
  */
 export async function deleteOtp(email: string): Promise<void> {
   const normalizedEmail = email.trim().toLowerCase();
-
-  const disk = readDiskStore();
-  if (disk[normalizedEmail]) {
-    delete disk[normalizedEmail];
-    writeDiskStore(disk);
-    console.log(`[OtpStore] Deleted OTP record for ${normalizedEmail}`);
-  }
+  const store = readStore();
+  delete store[normalizedEmail];
+  writeStore(store);
+  console.log(`[OtpStore] Cleared OTP for ${normalizedEmail}`);
 }
 
 /**
- * Check if the email is in cooldown for resending.
- * Returns seconds remaining if in cooldown, or 0 if allowed.
+ * Check cooldown seconds remaining before allowing a resend.
  */
-export async function getResendCooldownSeconds(email: string, cooldownDurationSec: number = 60): Promise<number> {
+export async function getResendCooldownSeconds(email: string, cooldownSeconds: number = 60): Promise<number> {
   const record = await getOtp(email);
   if (!record || !record.lastSentAt) return 0;
 
-  const lastSentTime = new Date(record.lastSentAt).getTime();
-  const elapsedSec = (Date.now() - lastSentTime) / 1000;
-  if (elapsedSec < cooldownDurationSec) {
-    return Math.ceil(cooldownDurationSec - elapsedSec);
-  }
-  return 0;
+  const lastSent = new Date(record.lastSentAt).getTime();
+  const elapsedSeconds = Math.floor((Date.now() - lastSent) / 1000);
+  const remaining = cooldownSeconds - elapsedSeconds;
+
+  return remaining > 0 ? remaining : 0;
 }

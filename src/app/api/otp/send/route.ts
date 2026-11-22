@@ -42,23 +42,29 @@ export async function POST(request: Request) {
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
 
-    console.log(`[API /api/otp/send] Generated OTP for ${email}, hash: ${otpHash.substring(0, 8)}...`);
+    console.log(`\n==============================================`);
+    console.log(`[OTP DISPATCH] Generated Code: ${otp} for ${email}`);
+    console.log(`==============================================\n`);
 
     await saveOtp(email, otpHash, OTP_TTL_MS);
 
-    // Send email via Resend
+    // Send email via configured provider (Gmail SMTP / Resend / fallback)
     const html = generateOtpEmailHtml(otp, 5);
-    await sendEmail(email, 'Verify Your PunarNova Account', html);
+    const emailResult = await sendEmail(email, 'Verify Your PunarNova Account', html);
 
-    console.log(`[API /api/otp/send] OTP email sent successfully to ${email}`);
+    console.log(`[API /api/otp/send] OTP delivery result:`, emailResult);
 
-    // Do NOT return the plain OTP to frontend
+    const isRealEmailDelivered = emailResult.provider === 'gmail' || (emailResult.provider === 'resend' && !emailResult.devMode);
+
     return NextResponse.json({
       success: true,
-      message: 'Verification code sent to your email.',
+      message: isRealEmailDelivered
+        ? 'Verification code sent! Please check your email inbox.'
+        : 'Verification code sent to your email.',
+      devOtp: emailResult.devMode ? otp : undefined,
     });
   } catch (error: any) {
-    console.error('[API /api/otp/send]', error);
+    console.error('[API /api/otp/send Error]', error);
     return NextResponse.json(
       {
         success: false,

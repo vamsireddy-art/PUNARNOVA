@@ -47,15 +47,24 @@ export async function POST(request: Request) {
     const otp = generateOtp();
     const otpHash = hashOtp(otp);
 
+    console.log(`\n==============================================`);
+    console.log(`[OTP RESEND] Fresh Code: ${otp} for ${email}`);
+    console.log(`==============================================\n`);
+
     await saveOtp(email, otpHash, OTP_TTL_MS);
 
-    // Send the fresh OTP via Resend
+    // Send the fresh OTP via configured provider
     const html = generateOtpEmailHtml(otp, 5);
-    await sendEmail(email, 'Verify Your PunarNova Account', html);
+    const emailResult = await sendEmail(email, 'Verify Your PunarNova Account', html);
+
+    const isRealEmailDelivered = emailResult.provider === 'gmail' || (emailResult.provider === 'resend' && !emailResult.devMode);
 
     return NextResponse.json({
       success: true,
-      message: 'A fresh verification code has been sent to your email.',
+      message: isRealEmailDelivered
+        ? 'A fresh verification code has been sent to your email.'
+        : 'A fresh verification code has been generated.',
+      devOtp: emailResult.devMode ? otp : undefined,
     });
   } catch (error: any) {
     console.error('[API /api/otp/resend]', error);

@@ -12,28 +12,32 @@ import {
   ShieldCheck, 
   MapPin, 
   RotateCcw,
-  Sparkles
+  Sparkles,
+  Zap,
+  Repeat
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
-import { MOCK_CATEGORIES, MOCK_INSTITUTIONS } from '@/lib/mock-data';
+import { MOCK_CATEGORIES } from '@/lib/mock-data';
 import { ProductCard } from '@/components/product-card';
-import { ProductCondition } from '@/types';
+import { calculateDealScore } from '@/lib/deal-score';
 
 function BuyMarketplaceContent() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get('category') || '';
   const initialQuery = searchParams.get('q') || '';
 
-  const { products, selectedCampus } = useAppStore();
+  const { products, selectedCampus, allInstitutions } = useAppStore();
 
   // Search & Filter States
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [selectedCondition, setSelectedCondition] = useState<string>('all');
   const [selectedInstitution, setSelectedInstitution] = useState<string>(selectedCampus ? selectedCampus.id : 'all');
+  const [dealFilter, setDealFilter] = useState<'all' | 'steal_deals' | 'great_value'>('all');
+  const [exchangeOnly, setExchangeOnly] = useState(false);
   const [maxPrice, setMaxPrice] = useState<number>(3000);
   const [maxDistance, setMaxDistance] = useState<number>(20);
-  const [sortBy, setSortBy] = useState<'recent' | 'price_asc' | 'price_desc' | 'popular'>('recent');
+  const [sortBy, setSortBy] = useState<'recent' | 'price_asc' | 'price_desc' | 'popular' | 'deal_score'>('deal_score');
   const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
@@ -69,17 +73,31 @@ function BuyMarketplaceContent() {
         return false;
       }
 
-      // 5. Price Max Filter
+      // 5. Deal Score Filter
+      const dealScore = p.dealScore || calculateDealScore(p.sellingPrice, p.originalPrice, p.categoryName, p.condition, products);
+      if (dealFilter === 'steal_deals' && dealScore.grade !== 'Steal Deal') {
+        return false;
+      }
+      if (dealFilter === 'great_value' && (dealScore.grade !== 'Steal Deal' && dealScore.grade !== 'Great Value')) {
+        return false;
+      }
+
+      // 6. Swap Available Only
+      if (exchangeOnly && !p.isExchangeAvailable) {
+        return false;
+      }
+
+      // 7. Price Max Filter
       if (p.sellingPrice > maxPrice) {
         return false;
       }
 
-      // 6. Distance Filter
+      // 8. Distance Filter
       if ((p.distanceKm || 0) > maxDistance) {
         return false;
       }
 
-      // 7. Verified Seller Only
+      // 9. Verified Seller Only
       if (verifiedOnly && p.sellerVerificationStatus !== 'verified') {
         return false;
       }
@@ -89,45 +107,51 @@ function BuyMarketplaceContent() {
       if (sortBy === 'price_asc') return a.sellingPrice - b.sellingPrice;
       if (sortBy === 'price_desc') return b.sellingPrice - a.sellingPrice;
       if (sortBy === 'popular') return b.viewCount - a.viewCount;
-      // Default: recent
+      if (sortBy === 'deal_score') {
+        const scoreA = (a.dealScore || calculateDealScore(a.sellingPrice, a.originalPrice, a.categoryName, a.condition, products)).scoreOutOf100;
+        const scoreB = (b.dealScore || calculateDealScore(b.sellingPrice, b.originalPrice, b.categoryName, b.condition, products)).scoreOutOf100;
+        return scoreB - scoreA;
+      }
       return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
     });
-  }, [products, searchQuery, selectedCategory, selectedCondition, selectedInstitution, maxPrice, maxDistance, verifiedOnly, sortBy]);
+  }, [products, searchQuery, selectedCategory, selectedCondition, selectedInstitution, dealFilter, exchangeOnly, maxPrice, maxDistance, verifiedOnly, sortBy]);
 
   const handleResetFilters = () => {
     setSearchQuery('');
     setSelectedCategory('');
     setSelectedCondition('all');
     setSelectedInstitution('all');
+    setDealFilter('all');
+    setExchangeOnly(false);
     setMaxPrice(3000);
     setMaxDistance(20);
     setVerifiedOnly(false);
-    setSortBy('recent');
+    setSortBy('deal_score');
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header & Search Bar */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-            Buy Educational Materials
+            Buy Verified Campus Educational Materials
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-1">
             Browse verified second-hand textbooks, scientific calculators, and gear at fair student prices.
           </p>
         </div>
 
-        {/* Search Input */}
-        <div className="w-full md:max-w-md relative">
+        {/* Global Search Bar */}
+        <div className="relative w-full md:w-96">
           <input
             type="text"
-            placeholder="Search title, author, ISBN, brand, or subject..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full bg-white text-xs sm:text-sm pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue shadow-sm"
+            placeholder="Search textbook, ISBN, author, calculator..."
+            className="w-full text-xs pl-10 pr-4 py-3 rounded-2xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue shadow-sm bg-white"
           />
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
           {searchQuery && (
             <button
               onClick={() => setSearchQuery('')}
@@ -139,20 +163,77 @@ function BuyMarketplaceContent() {
         </div>
       </div>
 
-      {/* Main Grid: Sidebar Filters + Products Listing */}
+      {/* Main Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* FILTERS SIDEBAR (DESKTOP) */}
-        <aside className="hidden lg:block space-y-6 bg-white p-5 rounded-2xl border border-slate-200 shadow-sm h-fit sticky top-24">
+        {/* DESKTOP FILTERS SIDEBAR */}
+        <aside className="hidden lg:block space-y-6 bg-white p-6 rounded-3xl border border-slate-200 shadow-sm h-fit">
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-            <span className="font-bold text-sm text-navy-900 flex items-center">
+            <span className="font-extrabold text-navy-900 text-sm flex items-center">
               <Filter className="w-4 h-4 mr-1.5 text-brand-blue" /> Filters
             </span>
             <button
               onClick={handleResetFilters}
-              className="text-[11px] text-slate-400 hover:text-brand-blue flex items-center"
+              className="text-[11px] text-slate-400 hover:text-brand-blue flex items-center font-medium"
             >
               <RotateCcw className="w-3 h-3 mr-1" /> Reset
             </button>
+          </div>
+
+          {/* Institution Campus Filter */}
+          <div>
+            <label className="block text-xs font-bold text-slate-800 mb-2">Campus Institution</label>
+            <select
+              value={selectedInstitution}
+              onChange={(e) => setSelectedInstitution(e.target.value)}
+              className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none font-medium"
+            >
+              <option value="all">All Campuses Nationwide</option>
+              {allInstitutions.map((inst) => (
+                <option key={inst.id} value={inst.id}>
+                  {inst.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Deal Grade Filter */}
+          <div>
+            <label className="block text-xs font-bold text-slate-800 mb-2">AI Deal Score Rating</label>
+            <div className="space-y-1.5 text-xs text-slate-600">
+              <label className="flex items-center space-x-2 cursor-pointer font-medium">
+                <input
+                  type="radio"
+                  name="dealFilter"
+                  checked={dealFilter === 'all'}
+                  onChange={() => setDealFilter('all')}
+                  className="text-brand-blue focus:ring-brand-blue"
+                />
+                <span>All Listings</span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer font-medium text-emerald-800">
+                <input
+                  type="radio"
+                  name="dealFilter"
+                  checked={dealFilter === 'steal_deals'}
+                  onChange={() => setDealFilter('steal_deals')}
+                  className="text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="flex items-center">
+                  <Zap className="w-3 h-3 mr-1 text-emerald-600 fill-current" />
+                  Steal Deals Only (&gt;45% off)
+                </span>
+              </label>
+              <label className="flex items-center space-x-2 cursor-pointer font-medium text-blue-800">
+                <input
+                  type="radio"
+                  name="dealFilter"
+                  checked={dealFilter === 'great_value'}
+                  onChange={() => setDealFilter('great_value')}
+                  className="text-blue-600 focus:ring-blue-500"
+                />
+                <span>Great Value & Steals</span>
+              </label>
+            </div>
           </div>
 
           {/* Category Selector */}
@@ -161,7 +242,7 @@ function BuyMarketplaceContent() {
             <select
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
-              className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none"
+              className="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none font-medium"
             >
               <option value="">All 12 Categories</option>
               {MOCK_CATEGORIES.map((cat) => (
@@ -177,7 +258,7 @@ function BuyMarketplaceContent() {
             <label className="block text-xs font-bold text-slate-800 mb-2">Condition</label>
             <div className="space-y-1.5 text-xs text-slate-600">
               {['all', 'Like New', 'Excellent', 'Good', 'Fair', 'Needs Repair'].map((cond) => (
-                <label key={cond} className="flex items-center space-x-2 cursor-pointer">
+                <label key={cond} className="flex items-center space-x-2 cursor-pointer font-medium">
                   <input
                     type="radio"
                     name="condition"
@@ -191,25 +272,40 @@ function BuyMarketplaceContent() {
             </div>
           </div>
 
-          {/* Institution Filter */}
-          <div>
-            <label className="block text-xs font-bold text-slate-800 mb-2">Institution Campus</label>
-            <select
-              value={selectedInstitution}
-              onChange={(e) => setSelectedInstitution(e.target.value)}
-              className="w-full text-xs p-2 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none"
-            >
-              <option value="all">All Campuses Nationwide</option>
-              {MOCK_INSTITUTIONS.map((inst) => (
-                <option key={inst.id} value={inst.id}>
-                  {inst.name}
-                </option>
-              ))}
-            </select>
+          {/* Smart Swap Toggle */}
+          <div className="pt-2 border-t border-slate-100">
+            <label className="flex items-center space-x-2 cursor-pointer text-xs font-bold text-indigo-900">
+              <input
+                type="checkbox"
+                checked={exchangeOnly}
+                onChange={(e) => setExchangeOnly(e.target.checked)}
+                className="rounded text-indigo-600 focus:ring-indigo-500 w-4 h-4"
+              />
+              <span className="flex items-center">
+                <Repeat className="w-3.5 h-3.5 text-indigo-600 mr-1" />
+                Open for Barter / Swap Only
+              </span>
+            </label>
+          </div>
+
+          {/* Verified Seller Only Toggle */}
+          <div className="pt-2 border-t border-slate-100">
+            <label className="flex items-center space-x-2 cursor-pointer text-xs font-bold text-slate-800">
+              <input
+                type="checkbox"
+                checked={verifiedOnly}
+                onChange={(e) => setVerifiedOnly(e.target.checked)}
+                className="rounded text-brand-blue focus:ring-brand-blue w-4 h-4"
+              />
+              <span className="flex items-center">
+                <ShieldCheck className="w-3.5 h-3.5 text-brand-green mr-1" />
+                Verified Student Sellers Only
+              </span>
+            </label>
           </div>
 
           {/* Price Range Slider */}
-          <div>
+          <div className="pt-2 border-t border-slate-100">
             <div className="flex justify-between text-xs font-bold text-slate-800 mb-1">
               <span>Max Price</span>
               <span className="text-brand-blue">₹{maxPrice.toLocaleString('en-IN')}</span>
@@ -228,126 +324,66 @@ function BuyMarketplaceContent() {
               <span>₹5,000</span>
             </div>
           </div>
-
-          {/* Max Distance Slider */}
-          <div>
-            <div className="flex justify-between text-xs font-bold text-slate-800 mb-1">
-              <span>Max Campus Distance</span>
-              <span className="text-brand-blue">{maxDistance} km</span>
-            </div>
-            <input
-              type="range"
-              min="1"
-              max="50"
-              step="1"
-              value={maxDistance}
-              onChange={(e) => setMaxDistance(Number(e.target.value))}
-              className="w-full accent-brand-blue"
-            />
-            <div className="flex justify-between text-[10px] text-slate-400 mt-1">
-              <span>1 km (Hostel)</span>
-              <span>50 km</span>
-            </div>
-          </div>
-
-          {/* Verified Seller Only Toggle */}
-          <div className="pt-2 border-t border-slate-100">
-            <label className="flex items-center space-x-2 cursor-pointer text-xs font-medium text-slate-700">
-              <input
-                type="checkbox"
-                checked={verifiedOnly}
-                onChange={(e) => setVerifiedOnly(e.target.checked)}
-                className="rounded text-brand-blue focus:ring-brand-blue w-4 h-4"
-              />
-              <span className="flex items-center text-slate-800">
-                <ShieldCheck className="w-3.5 h-3.5 text-brand-green mr-1" />
-                Verified Student Sellers Only
-              </span>
-            </label>
-          </div>
         </aside>
 
         {/* PRODUCTS LISTING COLUMN */}
         <main className="lg:col-span-3 space-y-6">
           {/* Controls Bar: Sort & Active Chips */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3.5 rounded-2xl border border-slate-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-4 rounded-3xl border border-slate-200 shadow-sm">
             <div className="text-xs text-slate-500 font-medium">
-              Showing <span className="text-navy-900 font-bold">{filteredProducts.length}</span> educational items
+              Showing <span className="text-navy-900 font-bold">{filteredProducts.length}</span> verified educational listings
             </div>
 
             <div className="flex items-center space-x-3">
               {/* Mobile Filter Toggle */}
               <button
                 onClick={() => setShowMobileFilters(!showMobileFilters)}
-                className="lg:hidden px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-medium flex items-center space-x-1.5"
+                className="lg:hidden px-3 py-1.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-700 flex items-center space-x-1"
               >
                 <SlidersHorizontal className="w-3.5 h-3.5" />
                 <span>Filters</span>
               </button>
 
               {/* Sort By Dropdown */}
-              <div className="flex items-center space-x-2 text-xs">
-                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400" />
-                <span className="text-slate-500 hidden sm:inline">Sort:</span>
+              <div className="flex items-center space-x-1.5 text-xs text-slate-600">
+                <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                <span className="hidden sm:inline font-bold">Sort:</span>
                 <select
                   value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value as any)}
-                  className="bg-slate-50 border border-slate-200 rounded-lg p-1.5 text-xs text-navy-900 focus:outline-none"
+                  onChange={(e: any) => setSortBy(e.target.value)}
+                  className="bg-slate-50 border border-slate-200 text-xs font-bold rounded-xl px-2.5 py-1.5 focus:outline-none text-navy-900"
                 >
+                  <option value="deal_score">Highest AI Deal Score</option>
                   <option value="recent">Recently Listed</option>
                   <option value="price_asc">Price: Low to High</option>
                   <option value="price_desc">Price: High to Low</option>
-                  <option value="popular">Most Popular</option>
+                  <option value="popular">Most Viewed</option>
                 </select>
               </div>
             </div>
           </div>
 
-          {/* Active Filter Pills */}
-          {(selectedCategory || selectedCondition !== 'all' || verifiedOnly) && (
-            <div className="flex flex-wrap items-center gap-2">
-              {selectedCategory && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-blue-50 text-brand-blue font-medium">
-                  Category: {selectedCategory}
-                  <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCategory('')} />
-                </span>
-              )}
-              {selectedCondition !== 'all' && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-emerald-50 text-brand-green font-medium">
-                  Condition: {selectedCondition}
-                  <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setSelectedCondition('all')} />
-                </span>
-              )}
-              {verifiedOnly && (
-                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs bg-purple-50 text-purple-700 font-medium">
-                  Verified Only
-                  <X className="w-3 h-3 ml-1 cursor-pointer" onClick={() => setVerifiedOnly(false)} />
-                </span>
-              )}
-            </div>
-          )}
-
-          {/* Products Grid */}
+          {/* Product Grid */}
           {filteredProducts.length === 0 ? (
-            <div className="bg-white rounded-2xl border border-slate-200 p-12 text-center">
-              <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center mb-3">
-                <Search className="w-6 h-6" />
+            <div className="bg-white rounded-3xl border border-slate-200 p-12 text-center space-y-4 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-slate-100 text-slate-400 mx-auto flex items-center justify-center">
+                <BookOpen className="w-8 h-8" />
               </div>
-              <h3 className="font-bold text-navy-900 text-base">No Matching Educational Items Found</h3>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
-                Try widening your price range, searching for another subject or book title, or reset filters.
+              <h2 className="text-lg font-bold text-navy-900">No Listings Match Your Filters</h2>
+              <p className="text-xs text-slate-500 max-w-sm mx-auto">
+                Try widening your price range, searching across all campuses, or resetting filters.
               </p>
               <button
                 onClick={handleResetFilters}
-                className="mt-4 px-4 py-2 bg-brand-blue text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition"
+                className="px-5 py-2.5 bg-brand-blue text-white rounded-2xl text-xs font-bold hover:bg-blue-600 transition shadow-soft"
               >
                 Reset All Filters
               </button>
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredProducts.map((p) => (
-                <ProductCard key={p.id} product={p} />
+              {filteredProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           )}
@@ -359,7 +395,11 @@ function BuyMarketplaceContent() {
 
 export default function BuyMarketplacePage() {
   return (
-    <Suspense fallback={<div className="p-12 text-center text-xs text-slate-500">Loading campus educational marketplace...</div>}>
+    <Suspense fallback={
+      <div className="max-w-7xl mx-auto px-4 py-16 text-center text-xs text-slate-500">
+        Loading verified campus marketplace...
+      </div>
+    }>
       <BuyMarketplaceContent />
     </Suspense>
   );

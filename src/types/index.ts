@@ -1,6 +1,6 @@
 // ==============================================================================
-// PunarNova - Type Definitions
-// Production Types for Student Second-Hand Educational Marketplace
+// PunarNova - Production Type Definitions
+// Intelligent, Secure Campus Second-Hand Marketplace & Circular Economy
 // ==============================================================================
 
 export type UserRole = 'student' | 'faculty' | 'admin' | 'moderator';
@@ -21,17 +21,35 @@ export type PaymentStatus = 'pending' | 'completed' | 'failed' | 'refunded';
 
 export type FulfillmentType = 'campus_handover' | 'hostel_delivery' | 'courier';
 
+export interface CampusHandoverSpot {
+  id: string;
+  name: string;
+  landmark: string;
+  timing: string;
+  isOfficialCampusPoint: boolean;
+}
+
 export interface Institution {
   id: string;
   name: string;
   type: InstitutionType;
   code: string;
-  emailDomain?: string;
+  emailDomain?: string; // e.g. "aditya.ac.in", "iitb.ac.in"
   city: string;
   state: string;
   country: string;
   distanceKm?: number;
   isVerified: boolean;
+  safeHandoverSpots: CampusHandoverSpot[];
+}
+
+export interface AchievementBadge {
+  id: string;
+  title: string;
+  description: string;
+  iconName: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'emerald';
+  unlockedAt?: string;
 }
 
 export interface User {
@@ -54,6 +72,10 @@ export interface User {
   purchasesCount: number;
   carbonSavedKg: number;
   moneySavedInr: number;
+  waterSavedLiters?: number;
+  greenPoints?: number;
+  badges?: AchievementBadge[];
+  blockedUserIds?: string[];
   createdAt: string;
 }
 
@@ -62,6 +84,7 @@ export interface VerificationRequest {
   userId: string;
   userName: string;
   userEmail: string;
+  institutionId: string;
   institutionName: string;
   documentType: 'student_id_card' | 'bonafide_certificate' | 'institutional_email';
   documentUrl: string;
@@ -82,6 +105,16 @@ export interface ProductCategory {
   itemCount?: number;
 }
 
+export type DealGrade = 'Steal Deal' | 'Great Value' | 'Fair Price' | 'Above Average';
+
+export interface DealScoreResult {
+  grade: DealGrade;
+  percentageBelowMedian: number;
+  categoryMedianPrice: number;
+  scoreOutOf100: number;
+  assessmentNote: string;
+}
+
 export interface Product {
   id: string;
   sellerId: string;
@@ -100,6 +133,7 @@ export interface Product {
   author?: string;
   isbn?: string;
   subject?: string;
+  semester?: string;
   condition: ProductCondition;
   originalPrice: number;
   sellingPrice: number;
@@ -107,9 +141,12 @@ export interface Product {
   suggestedMinPrice?: number;
   suggestedMaxPrice?: number;
   aiConfidenceScore?: number;
+  dealScore?: DealScoreResult;
   images: string[];
   isNegotiable: boolean;
   isExchangeAvailable: boolean;
+  exchangeWantedNotes?: string;
+  pickupSpotId?: string;
   pickupLocationNotes?: string;
   deliveryAvailable: boolean;
   status: ProductStatus;
@@ -143,8 +180,10 @@ export interface Order {
   orderNumber: string;
   buyerId: string;
   buyerName: string;
+  buyerEmail?: string;
   sellerId: string;
   sellerName: string;
+  sellerEmail?: string;
   items: {
     product: Product;
     quantity: number;
@@ -159,6 +198,7 @@ export interface Order {
   fulfillmentType: FulfillmentType;
   orderStatus: OrderStatus;
   deliveryAddress: string;
+  handoverSpot?: string;
   createdAt: string;
   pickupCode?: string;
 }
@@ -168,7 +208,7 @@ export interface Message {
   conversationId: string;
   senderId: string;
   senderName: string;
-  messageType: 'text' | 'product_card' | 'price_offer' | 'deal_accepted';
+  messageType: 'text' | 'product_card' | 'price_offer' | 'deal_accepted' | 'safe_spot_proposed';
   content: string;
   offerAmount?: number;
   offerStatus?: 'pending' | 'accepted' | 'rejected' | 'countered';
@@ -194,12 +234,38 @@ export interface ProductExchange {
   id: string;
   requesterId: string;
   requesterName: string;
+  requesterCampus: string;
   offeredProduct: Product;
   targetProduct: Product;
   ownerId: string;
   ownerName: string;
-  status: 'proposed' | 'accepted' | 'completed' | 'declined';
+  ownerCampus: string;
+  status: 'proposed' | 'accepted' | 'ready_for_swap' | 'completed' | 'declined';
   notes: string;
+  handoverSpot?: string;
+  createdAt: string;
+  completedAt?: string;
+}
+
+export interface ProductReport {
+  id: string;
+  productId: string;
+  productTitle: string;
+  reporterId: string;
+  reporterName: string;
+  reason: 'counterfeit' | 'overpriced' | 'inappropriate' | 'misleading_condition' | 'prohibited_item' | 'other';
+  description: string;
+  status: 'pending' | 'investigating' | 'resolved' | 'dismissed';
+  createdAt: string;
+}
+
+export interface UserReport {
+  id: string;
+  reportedUserId: string;
+  reportedUserName: string;
+  reporterId: string;
+  reason: 'harassment' | 'fraud' | 'no_show' | 'fake_verification' | 'other';
+  description: string;
   createdAt: string;
 }
 
@@ -208,7 +274,7 @@ export interface NotificationItem {
   userId: string;
   title: string;
   message: string;
-  type: 'order_update' | 'verification_status' | 'price_alert' | 'chat_message' | 'exchange_request' | 'system';
+  type: 'order_update' | 'verification_status' | 'price_alert' | 'chat_message' | 'exchange_request' | 'reward_unlocked' | 'system';
   linkUrl?: string;
   isRead: boolean;
   createdAt: string;
@@ -245,4 +311,26 @@ export interface AIImageScanResult {
   detectedBrand?: string;
   confidence: number;
   notes: string[];
+}
+
+export interface BookScannerResult {
+  title?: string;
+  author?: string;
+  isbn?: string;
+  edition?: string;
+  publisher?: string;
+  publishedYear?: string;
+  confidence: number;
+  rawText?: string;
+  extractedFrom: 'isbn_lookup' | 'ocr_vision' | 'manual';
+}
+
+export interface EnvironmentalStats {
+  totalItemsReused: number;
+  totalMoneySavedInr: number;
+  totalCo2AvoidedKg: number;
+  totalWaterSavedLiters: number;
+  treesEquivalentPreserved: number;
+  paperSavedKg: number;
+  verifiedTransactionsCount: number;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { 
   User, 
   Product, 
@@ -8,15 +8,17 @@ import {
   Order, 
   OrderStatus,
   Conversation, 
-  Message, 
   VerificationRequest, 
   VerificationStatus,
   ProductExchange, 
   NotificationItem,
-  Institution
+  Institution,
+  ProductReport,
+  EnvironmentalStats,
+  AchievementBadge
 } from '@/types';
 import { updateRegisteredAccountVerification } from './auth';
-import { MOCK_USERS, MOCK_PRODUCTS, MOCK_INSTITUTIONS, MOCK_NOTIFICATIONS } from './mock-data';
+import { MOCK_USERS, MOCK_PRODUCTS, MOCK_INSTITUTIONS, MOCK_CATEGORIES } from './mock-data';
 
 const STORAGE_KEYS = {
   USER: 'reuse_campus_current_user',
@@ -30,6 +32,7 @@ const STORAGE_KEYS = {
   CONVERSATIONS: 'reuse_campus_conversations',
   NOTIFICATIONS: 'reuse_campus_notifications',
   CUSTOM_INSTITUTIONS: 'reuse_campus_custom_institutions',
+  PRODUCT_REPORTS: 'reuse_campus_product_reports',
 };
 
 // Initial verification requests for admin review
@@ -37,46 +40,32 @@ const INITIAL_VERIFICATIONS: VerificationRequest[] = [
   {
     id: 'verif-1',
     userId: 'user-2',
-    userName: 'Priya Patel',
-    userEmail: 'priya.patel@du.ac.in',
-    institutionName: 'University of Delhi',
+    userName: 'Priya Sharma',
+    userEmail: 'priya.sharma@du.ac.in',
+    institutionId: 'inst-3',
+    institutionName: 'University of Delhi (North Campus)',
     documentType: 'student_id_card',
     documentUrl: 'https://images.unsplash.com/photo-1544717305-2782549b5136?w=600&auto=format&fit=crop&q=80',
-    verifiedLegalName: 'Priya K. Patel',
-    nameMatchScore: 94.5,
-    status: 'pending',
+    verifiedLegalName: 'Priya Sharma',
+    nameMatchScore: 96.0,
+    status: 'verified',
     submittedAt: '2026-11-18T14:20:00Z',
+    reviewedAt: '2026-11-18T15:00:00Z',
   },
   {
     id: 'verif-2',
     userId: 'user-3',
     userName: 'Rohan Deshmukh',
-    userEmail: 'rohan.d@iitb.ac.in',
-    institutionName: 'IIT Bombay',
+    userEmail: 'rohan.deshmukh@iitb.ac.in',
+    institutionId: 'inst-1',
+    institutionName: 'Indian Institute of Technology (IIT) Bombay',
     documentType: 'student_id_card',
     documentUrl: 'https://images.unsplash.com/photo-1571260899304-425eee4c7efc?w=600&auto=format&fit=crop&q=80',
-    verifiedLegalName: 'Rohan S. Deshmukh',
+    verifiedLegalName: 'Rohan Deshmukh',
     nameMatchScore: 98.0,
-    status: 'pending',
+    status: 'verified',
     submittedAt: '2026-11-19T09:10:00Z',
-  }
-];
-
-// Initial conversations
-const INITIAL_CONVERSATIONS: Conversation[] = [
-  {
-    id: 'conv-1',
-    productId: 'prod-1',
-    productTitle: 'Casio FX-991EX Scientific Calculator',
-    productImage: 'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?w=200&auto=format&fit=crop&q=80',
-    productPrice: 750,
-    buyerId: 'user-2',
-    buyerName: 'Priya Patel',
-    sellerId: 'user-1',
-    sellerName: 'Aarav Sharma',
-    lastMessageText: 'Can you do ₹700 for cash handover near library?',
-    lastMessageAt: '2026-11-19T10:15:00Z',
-    unreadCount: 1,
+    reviewedAt: '2026-11-19T10:00:00Z',
   }
 ];
 
@@ -89,8 +78,10 @@ export function useAppStore() {
   const [wishlist, setWishlistState] = useState<string[]>([]);
   const [orders, setOrdersState] = useState<Order[]>([]);
   const [verifications, setVerificationsState] = useState<VerificationRequest[]>([]);
+  const [exchanges, setExchangesState] = useState<ProductExchange[]>([]);
   const [conversations, setConversationsState] = useState<Conversation[]>([]);
   const [notifications, setNotificationsState] = useState<NotificationItem[]>([]);
+  const [productReports, setProductReportsState] = useState<ProductReport[]>([]);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // Load from localStorage on client mount
@@ -99,29 +90,27 @@ export function useAppStore() {
 
     try {
       const savedVerifications = localStorage.getItem(STORAGE_KEYS.VERIFICATIONS);
-      const parsedVerifs: VerificationRequest[] = savedVerifications ? JSON.parse(savedVerifications) : [];
-      if (savedVerifications) setVerificationsState(parsedVerifs);
+      const parsedVerifs: VerificationRequest[] = savedVerifications ? JSON.parse(savedVerifications) : INITIAL_VERIFICATIONS;
+      setVerificationsState(parsedVerifs);
 
       const savedUser = localStorage.getItem(STORAGE_KEYS.USER);
       if (savedUser) {
         let parsedUser: User = JSON.parse(savedUser);
-        // Automatically reconcile verification status: if any approved verification exists for this user, mark as verified!
-        if (parsedVerifs.length > 0) {
-          const hasApproved = parsedVerifs.some(
-            (v) =>
-              (v.userId === parsedUser.id || (parsedUser.email && v.userEmail?.toLowerCase() === parsedUser.email.toLowerCase())) &&
-              v.status === 'verified'
-          );
-          if (hasApproved && parsedUser.verificationStatus !== 'verified') {
-            parsedUser = {
-              ...parsedUser,
-              verificationStatus: 'verified',
-              isEmailVerified: true,
-              isMobileVerified: true,
-            };
-            localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
-            updateRegisteredAccountVerification(parsedUser.id, parsedUser.email, 'verified');
-          }
+        // Automatically reconcile verification status: if verified submission exists, mark as verified
+        const hasApproved = parsedVerifs.some(
+          (v) =>
+            (v.userId === parsedUser.id || (parsedUser.email && v.userEmail?.toLowerCase() === parsedUser.email.toLowerCase())) &&
+            v.status === 'verified'
+        );
+        if (hasApproved && parsedUser.verificationStatus !== 'verified') {
+          parsedUser = {
+            ...parsedUser,
+            verificationStatus: 'verified',
+            isEmailVerified: true,
+            isMobileVerified: true,
+          };
+          localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(parsedUser));
+          updateRegisteredAccountVerification(parsedUser.id, parsedUser.email, 'verified');
         }
         setCurrentUserState(parsedUser);
       }
@@ -133,7 +122,12 @@ export function useAppStore() {
       if (savedCustomInstitutions) setCustomInstitutionsState(JSON.parse(savedCustomInstitutions));
 
       const savedProducts = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-      if (savedProducts) setProductsState(JSON.parse(savedProducts));
+      if (savedProducts) {
+        setProductsState(JSON.parse(savedProducts));
+      } else {
+        setProductsState(MOCK_PRODUCTS);
+        localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(MOCK_PRODUCTS));
+      }
 
       const savedCart = localStorage.getItem(STORAGE_KEYS.CART);
       if (savedCart) setCartState(JSON.parse(savedCart));
@@ -144,11 +138,17 @@ export function useAppStore() {
       const savedOrders = localStorage.getItem(STORAGE_KEYS.ORDERS);
       if (savedOrders) setOrdersState(JSON.parse(savedOrders));
 
+      const savedExchanges = localStorage.getItem(STORAGE_KEYS.EXCHANGES);
+      if (savedExchanges) setExchangesState(JSON.parse(savedExchanges));
+
       const savedConversations = localStorage.getItem(STORAGE_KEYS.CONVERSATIONS);
       if (savedConversations) setConversationsState(JSON.parse(savedConversations));
 
       const savedNotifications = localStorage.getItem(STORAGE_KEYS.NOTIFICATIONS);
       if (savedNotifications) setNotificationsState(JSON.parse(savedNotifications));
+
+      const savedReports = localStorage.getItem(STORAGE_KEYS.PRODUCT_REPORTS);
+      if (savedReports) setProductReportsState(JSON.parse(savedReports));
     } catch (e) {
       console.error('Error loading persisted store:', e);
     } finally {
@@ -173,10 +173,8 @@ export function useAppStore() {
     setCurrentUser(null);
   };
 
-  // Deprecated demo switcher (kept for backwards compatibility)
-  const switchDemoUser = (_role: 'verified_student' | 'unverified_student' | 'admin') => {
-    // No-op in real-time mode
-  };
+  // Deprecated demo switcher kept for clean signature compatibility
+  const switchDemoUser = (_role: 'verified_student' | 'unverified_student' | 'admin') => {};
 
   // Select Campus
   const setSelectedCampus = (campus: Institution | null) => {
@@ -190,7 +188,7 @@ export function useAppStore() {
   // All institutions = built-in + user-added
   const allInstitutions: Institution[] = [...MOCK_INSTITUTIONS, ...customInstitutions];
 
-  // Add a custom institution
+  // Add custom campus
   const addCustomInstitution = (name: string, type: 'School' | 'College' | 'University', city?: string, state?: string): Institution => {
     const newInst: Institution = {
       id: `custom-inst-${Date.now()}`,
@@ -203,6 +201,10 @@ export function useAppStore() {
       country: 'India',
       distanceKm: 0,
       isVerified: false,
+      safeHandoverSpots: [
+        { id: `spot-${Date.now()}-1`, name: 'Main Campus Gate Security Office', landmark: 'Visitor Desk', timing: '9:00 AM - 6:00 PM', isOfficialCampusPoint: true },
+        { id: `spot-${Date.now()}-2`, name: 'Central Campus Library', landmark: 'Main Entrance Foyer', timing: '9:00 AM - 8:00 PM', isOfficialCampusPoint: true },
+      ],
     };
     const updated = [...customInstitutions, newInst];
     setCustomInstitutionsState(updated);
@@ -219,12 +221,11 @@ export function useAppStore() {
     if (typeof window !== 'undefined') {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updated));
     }
-    // Add seller sales count & notification
     addNotification({
       id: `notif-${Date.now()}`,
       userId: currentUser?.id || 'guest',
       title: 'Listing Published Successfully!',
-      message: `"${newProduct.title}" is now visible to students across ${newProduct.institutionName}.`,
+      message: `"${newProduct.title}" is now active in ${newProduct.institutionName}.`,
       type: 'system',
       linkUrl: `/product/${newProduct.id}`,
       isRead: false,
@@ -299,7 +300,7 @@ export function useAppStore() {
     const newOrder: Order = {
       ...orderData,
       id: `order-${Date.now()}`,
-      orderNumber: `RC-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderNumber: `PN-${Math.floor(100000 + Math.random() * 900000)}`,
       createdAt: new Date().toISOString(),
       pickupCode: `${Math.floor(1000 + Math.random() * 9000)}`,
     };
@@ -309,7 +310,7 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
     }
 
-    // Mark purchased products as sold
+    // Mark purchased items as reserved/sold
     const purchasedIds = orderData.items.map((i) => i.product.id);
     const updatedProducts = products.map((p) =>
       purchasedIds.includes(p.id) ? { ...p, status: 'sold' as const } : p
@@ -319,15 +320,13 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(updatedProducts));
     }
 
-    // Clear cart
     clearCart();
 
-    // Trigger Notification
     addNotification({
       id: `notif-${Date.now()}`,
       userId: currentUser?.id || 'guest',
       title: 'Order Confirmed!',
-      message: `Order #${newOrder.orderNumber} placed successfully. Handover code: ${newOrder.pickupCode}.`,
+      message: `Order #${newOrder.orderNumber} placed. Campus Handover Code: ${newOrder.pickupCode}.`,
       type: 'order_update',
       linkUrl: '/orders',
       isRead: false,
@@ -337,25 +336,7 @@ export function useAppStore() {
     return newOrder;
   };
 
-  // Add Notification
-  const addNotification = (item: NotificationItem) => {
-    const updated = [item, ...notifications];
-    setNotificationsState(updated);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(updated));
-    }
-  };
-
-  // Mark all notifications read
-  const markNotificationsAsRead = () => {
-    const updated = notifications.map((n) => ({ ...n, isRead: true }));
-    setNotificationsState(updated);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(updated));
-    }
-  };
-
-  // Update Order Status (for Admin & Seller/Buyer coordination)
+  // Update Order Status (Admin & Seller Handover Confirmation)
   const updateOrderStatus = (orderId: string, status: OrderStatus, notes?: string) => {
     const updatedOrders = orders.map((o) => {
       if (o.id === orderId) {
@@ -371,23 +352,13 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updatedOrders));
     }
 
-    // Trigger Notification to buyer
     const targetOrder = orders.find((o) => o.id === orderId);
     if (targetOrder) {
-      const statusLabels: Record<string, string> = {
-        created: 'Order Placed',
-        confirmed: 'Order Confirmed by Admin',
-        ready_for_handover: 'Ready for Campus Handover',
-        ready_for_pickup: 'Ready for Pickup',
-        completed: 'Order Handover Completed',
-        cancelled: 'Order Cancelled',
-      };
-
       addNotification({
         id: `notif-${Date.now()}`,
         userId: targetOrder.buyerId,
-        title: statusLabels[status] || 'Order Status Updated',
-        message: `Order #${targetOrder.orderNumber} status changed to ${status.replace(/_/g, ' ').toUpperCase()}.${notes ? ` Note: ${notes}` : ''}`,
+        title: `Order #${targetOrder.orderNumber} Status: ${status.replace(/_/g, ' ').toUpperCase()}`,
+        message: notes || `Your order status is now ${status.replace(/_/g, ' ')}.`,
         type: 'order_update',
         linkUrl: '/orders',
         isRead: false,
@@ -396,9 +367,159 @@ export function useAppStore() {
     }
   };
 
+  // Smart Swap: Propose Product Exchange
+  const proposeExchange = (exchangeData: Omit<ProductExchange, 'id' | 'createdAt' | 'status'>) => {
+    const newEx: ProductExchange = {
+      ...exchangeData,
+      id: `ex-${Date.now()}`,
+      status: 'proposed',
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newEx, ...exchanges];
+    setExchangesState(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.EXCHANGES, JSON.stringify(updated));
+    }
+
+    addNotification({
+      id: `notif-${Date.now()}`,
+      userId: exchangeData.ownerId,
+      title: 'New Book Swap Proposal!',
+      message: `${exchangeData.requesterName} proposed swapping "${exchangeData.offeredProduct.title}" for your "${exchangeData.targetProduct.title}".`,
+      type: 'exchange_request',
+      linkUrl: '/exchange',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+
+    return newEx;
+  };
+
+  // Update Exchange Status
+  const updateExchangeStatus = (exchangeId: string, status: ProductExchange['status']) => {
+    const updated = exchanges.map((ex) => {
+      if (ex.id === exchangeId) {
+        return {
+          ...ex,
+          status,
+          completedAt: status === 'completed' ? new Date().toISOString() : undefined,
+        };
+      }
+      return ex;
+    });
+    setExchangesState(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.EXCHANGES, JSON.stringify(updated));
+    }
+  };
+
+  // Product Reporting (Content Moderation)
+  const reportProduct = (report: Omit<ProductReport, 'id' | 'createdAt' | 'status'>) => {
+    const newReport: ProductReport = {
+      ...report,
+      id: `rep-${Date.now()}`,
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+    };
+    const updated = [newReport, ...productReports];
+    setProductReportsState(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.PRODUCT_REPORTS, JSON.stringify(updated));
+    }
+
+    addNotification({
+      id: `notif-${Date.now()}`,
+      userId: currentUser?.id || 'guest',
+      title: 'Listing Report Submitted',
+      message: `Thank you for keeping campus safe. Our moderator team is reviewing "${report.productTitle}".`,
+      type: 'system',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    });
+  };
+
+  // User Blocking
+  const blockUser = (userIdToBlock: string) => {
+    if (!currentUser) return;
+    const currentBlocked = currentUser.blockedUserIds || [];
+    if (!currentBlocked.includes(userIdToBlock)) {
+      const updatedUser: User = {
+        ...currentUser,
+        blockedUserIds: [...currentBlocked, userIdToBlock],
+      };
+      setCurrentUser(updatedUser);
+    }
+  };
+
+  const unblockUser = (userIdToUnblock: string) => {
+    if (!currentUser) return;
+    const currentBlocked = currentUser.blockedUserIds || [];
+    const updatedUser: User = {
+      ...currentUser,
+      blockedUserIds: currentBlocked.filter(id => id !== userIdToUnblock),
+    };
+    setCurrentUser(updatedUser);
+  };
+
+  // Dynamic Environmental Calculation strictly from real completed transactions
+  const environmentalStats: EnvironmentalStats = useMemo(() => {
+    // 1. Completed Orders
+    const completedOrders = orders.filter((o) => o.orderStatus === 'completed');
+    // 2. Completed Swaps
+    const completedSwaps = exchanges.filter((e) => e.status === 'completed');
+
+    let totalItems = 0;
+    let moneySaved = 0;
+    let paperKg = 0;
+    let co2Kg = 0;
+    let waterL = 0;
+
+    // Process completed purchase orders
+    completedOrders.forEach((order) => {
+      order.items.forEach((item) => {
+        const qty = item.quantity || 1;
+        totalItems += qty;
+        const orig = item.product.originalPrice || 500;
+        const sell = item.unitPrice || item.product.sellingPrice || 250;
+        moneySaved += Math.max(orig - sell, 0) * qty;
+
+        // Life Cycle Assessment factors (EPN)
+        const isElectronics = item.product.categoryName === 'Calculators' || item.product.categoryName === 'Lab Equipment';
+        if (isElectronics) {
+          co2Kg += 4.2 * qty; // Embodied electronics carbon
+          waterL += 12 * qty;
+        } else {
+          // Standard Academic Book: ~1.1 kg paper weight
+          const bookPaperWeight = 1.1;
+          paperKg += bookPaperWeight * qty;
+          co2Kg += (bookPaperWeight * 1.54) * qty; // 1.54 kg CO2 per kg virgin paper
+          waterL += (bookPaperWeight * 26.0) * qty; // 26L water per kg virgin paper
+        }
+      });
+    });
+
+    // Process completed peer swaps (both participants reuse 1 item)
+    completedSwaps.forEach(() => {
+      totalItems += 2;
+      moneySaved += 800; // Estimated 2 academic books saved
+      paperKg += 2.2;
+      co2Kg += 3.38;
+      waterL += 57.2;
+    });
+
+    return {
+      totalItemsReused: totalItems,
+      totalMoneySavedInr: Math.round(moneySaved),
+      totalCo2AvoidedKg: Number(co2Kg.toFixed(1)),
+      totalWaterSavedLiters: Math.round(waterL),
+      treesEquivalentPreserved: Number((paperKg * 0.017).toFixed(2)),
+      paperSavedKg: Number(paperKg.toFixed(1)),
+      verifiedTransactionsCount: completedOrders.length + completedSwaps.length,
+    };
+  }, [orders, exchanges]);
+
   // Submit Verification Request
   const submitVerification = (req: Omit<VerificationRequest, 'id' | 'submittedAt' | 'status'>) => {
-    // If fuzzy score is >= 80%, automated match marks as verified immediately
     const autoVerified = req.nameMatchScore >= 80;
     const finalStatus: VerificationStatus = autoVerified ? 'verified' : 'pending';
 
@@ -414,7 +535,6 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.VERIFICATIONS, JSON.stringify(updated));
     }
 
-    // Update currentUser and registered account permanently
     if (currentUser) {
       const updatedUser: User = {
         ...currentUser,
@@ -428,7 +548,7 @@ export function useAppStore() {
     }
   };
 
-  // Admin Review Verification
+  // Review Verification (Admin)
   const reviewVerification = (verifId: string, approve: boolean, reason?: string) => {
     const finalStatus: VerificationStatus = approve ? 'verified' : 'rejected';
     const target = verifications.find((v) => v.id === verifId);
@@ -449,10 +569,8 @@ export function useAppStore() {
       localStorage.setItem(STORAGE_KEYS.VERIFICATIONS, JSON.stringify(updated));
     }
 
-    // Permanently update user in registered accounts database
     if (target) {
       updateRegisteredAccountVerification(target.userId, target.userEmail, finalStatus);
-      // If currently logged-in user matches target, update their active state
       if (
         currentUser &&
         (currentUser.id === target.userId ||
@@ -463,6 +581,23 @@ export function useAppStore() {
           verificationStatus: finalStatus,
         });
       }
+    }
+  };
+
+  // Notifications
+  const addNotification = (item: NotificationItem) => {
+    const updated = [item, ...notifications];
+    setNotificationsState(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(updated));
+    }
+  };
+
+  const markNotificationsAsRead = () => {
+    const updated = notifications.map((n) => ({ ...n, isRead: true }));
+    setNotificationsState(updated);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(STORAGE_KEYS.NOTIFICATIONS, JSON.stringify(updated));
     }
   };
 
@@ -489,6 +624,14 @@ export function useAppStore() {
     orders,
     createOrder,
     updateOrderStatus,
+    exchanges,
+    proposeExchange,
+    updateExchangeStatus,
+    productReports,
+    reportProduct,
+    blockUser,
+    unblockUser,
+    environmentalStats,
     verifications,
     submitVerification,
     reviewVerification,

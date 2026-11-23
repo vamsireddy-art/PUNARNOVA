@@ -48,20 +48,15 @@ export async function POST(request: Request) {
 
     await saveOtp(email, otpHash, OTP_TTL_MS);
 
-    // Send email via configured provider (Gmail SMTP / Resend / fallback)
+    // Send email via configured provider (Gmail SMTP / Resend)
     const html = generateOtpEmailHtml(otp, 5);
     const emailResult = await sendEmail(email, 'Verify Your PunarNova Account', html);
 
     console.log(`[API /api/otp/send] OTP delivery result:`, emailResult);
 
-    const isRealEmailDelivered = emailResult.provider === 'gmail' || (emailResult.provider === 'resend' && !emailResult.devMode);
-
     return NextResponse.json({
       success: true,
-      message: isRealEmailDelivered
-        ? 'Verification code sent! Please check your email inbox.'
-        : 'Verification code sent to your email.',
-      devOtp: emailResult.devMode ? otp : undefined,
+      message: 'Verification code sent! Please check your email inbox.',
     });
   } catch (error: any) {
     console.error('[API /api/otp/send Error]', error);

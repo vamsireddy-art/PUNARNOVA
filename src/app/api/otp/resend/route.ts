@@ -57,14 +57,9 @@ export async function POST(request: Request) {
     const html = generateOtpEmailHtml(otp, 5);
     const emailResult = await sendEmail(email, 'Verify Your PunarNova Account', html);
 
-    const isRealEmailDelivered = emailResult.provider === 'gmail' || (emailResult.provider === 'resend' && !emailResult.devMode);
-
     return NextResponse.json({
       success: true,
-      message: isRealEmailDelivered
-        ? 'A fresh verification code has been sent to your email.'
-        : 'A fresh verification code has been generated.',
-      devOtp: emailResult.devMode ? otp : undefined,
+      message: 'A fresh verification code has been sent to your email.',
     });
   } catch (error: any) {
     console.error('[API /api/otp/resend]', error);

@@ -2,20 +2,30 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { Heart, ShieldCheck, MapPin, Sparkles, ArrowRight } from 'lucide-react';
+import { Heart, ShieldCheck, MapPin, Sparkles, ArrowRight, Repeat, Zap } from 'lucide-react';
 import { Product } from '@/types';
 import { useAppStore } from '@/lib/store';
+import { calculateDealScore } from '@/lib/deal-score';
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const { wishlist, toggleWishlist } = useAppStore();
+  const { wishlist, toggleWishlist, products } = useAppStore();
   const isWishlisted = wishlist.includes(product.id);
 
   const discountPercent = Math.round(
     ((product.originalPrice - product.sellingPrice) / product.originalPrice) * 100
+  );
+
+  // Compute or use real-time AI Deal Score
+  const dealScore = product.dealScore || calculateDealScore(
+    product.sellingPrice,
+    product.originalPrice,
+    product.categoryName,
+    product.condition,
+    products
   );
 
   const conditionColors: Record<string, string> = {
@@ -24,6 +34,13 @@ export function ProductCard({ product }: ProductCardProps) {
     'Good': 'bg-amber-50 text-amber-700 border-amber-200',
     'Fair': 'bg-orange-50 text-orange-700 border-orange-200',
     'Needs Repair': 'bg-rose-50 text-rose-700 border-rose-200',
+  };
+
+  const dealBadgeStyles: Record<string, string> = {
+    'Steal Deal': 'bg-gradient-to-r from-emerald-600 to-teal-600 text-white',
+    'Great Value': 'bg-blue-600 text-white',
+    'Fair Price': 'bg-slate-700 text-slate-100',
+    'Above Average': 'bg-amber-600 text-white',
   };
 
   return (
@@ -36,16 +53,24 @@ export function ProductCard({ product }: ProductCardProps) {
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
         />
 
-        {/* Condition Badge */}
+        {/* Condition & Deal Badges */}
         <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
           <span
-            className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border backdrop-blur-sm shadow-sm ${
+            className={`px-2.5 py-1 rounded-full text-[10px] font-bold border backdrop-blur-sm shadow-sm ${
               conditionColors[product.condition] || 'bg-slate-100 text-slate-700 border-slate-200'
             }`}
           >
             {product.condition}
           </span>
-          {discountPercent > 0 && (
+
+          {dealScore && (dealScore.grade === 'Steal Deal' || dealScore.grade === 'Great Value') && (
+            <span className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase tracking-wider shadow-sm flex items-center space-x-1 ${dealBadgeStyles[dealScore.grade]}`}>
+              <Zap className="w-2.5 h-2.5 fill-current" />
+              <span>{dealScore.grade}</span>
+            </span>
+          )}
+
+          {discountPercent >= 50 && (
             <span className="bg-rose-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
               {discountPercent}% OFF
             </span>
@@ -69,11 +94,11 @@ export function ProductCard({ product }: ProductCardProps) {
           <Heart className={`w-4 h-4 ${isWishlisted ? 'fill-current text-rose-600' : ''}`} />
         </button>
 
-        {/* AI Estimation Badge if applied */}
-        {product.aiConfidenceScore && (
-          <div className="absolute bottom-2 left-2 bg-navy-900/85 backdrop-blur-md text-slate-200 text-[10px] px-2 py-0.5 rounded-md flex items-center space-x-1">
-            <Sparkles className="w-2.5 h-2.5 text-brand-green" />
-            <span>AI Verified Fair Price</span>
+        {/* Smart Swap badge */}
+        {product.isExchangeAvailable && (
+          <div className="absolute bottom-2 left-2 bg-indigo-900/85 backdrop-blur-md text-white text-[10px] font-semibold px-2 py-0.5 rounded-md flex items-center space-x-1">
+            <Repeat className="w-2.5 h-2.5 text-indigo-300" />
+            <span>Open for Swap</span>
           </div>
         )}
       </div>
@@ -86,9 +111,9 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="font-medium text-brand-blue truncate max-w-[130px]">
               {product.categoryName}
             </span>
-            <span className="flex items-center text-slate-500">
+            <span className="flex items-center text-slate-500 text-[10px]">
               <MapPin className="w-3 h-3 mr-0.5 text-slate-400" />
-              {product.distanceKm !== undefined ? `${product.distanceKm} km` : 'Campus'}
+              {product.institutionName ? product.institutionName.split(' ')[0] : 'Campus'}
             </span>
           </div>
 
@@ -99,13 +124,20 @@ export function ProductCard({ product }: ProductCardProps) {
             </h3>
           </Link>
 
+          {/* Edition / Author / Semester tag */}
+          {(product.edition || product.author || product.semester) && (
+            <p className="text-[11px] text-slate-400 mt-1 line-clamp-1">
+              {[product.edition, product.author, product.semester].filter(Boolean).join(' • ')}
+            </p>
+          )}
+
           {/* Seller Status */}
           <div className="flex items-center space-x-1.5 mt-2 text-xs text-slate-600">
-            <span className="truncate max-w-[110px] font-medium text-slate-700">
+            <span className="truncate max-w-[120px] font-medium text-slate-700">
               {product.sellerName}
             </span>
             {product.sellerVerificationStatus === 'verified' && (
-              <span className="inline-flex items-center text-brand-green text-[10px] font-medium bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-100" title="Verified Student at Institution">
+              <span className="inline-flex items-center text-brand-green text-[10px] font-medium bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-100" title="Verified Institutional Student">
                 <ShieldCheck className="w-3 h-3 mr-0.5" />
                 Verified
               </span>
@@ -126,7 +158,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </span>
               )}
             </div>
-            <span className="text-[10px] text-emerald-600 font-medium">
+            <span className="text-[10px] text-emerald-600 font-semibold block">
               Save ₹{(product.originalPrice - product.sellingPrice).toLocaleString('en-IN')}
             </span>
           </div>

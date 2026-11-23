@@ -111,10 +111,10 @@ export default function VerificationCenterPage() {
       </div>
 
       {/* Current Status Card */}
-      <div className={`p-6 rounded-2xl border ${currentStatusConfig.color} shadow-sm space-y-4`}>
+      <div className={`p-6 rounded-3xl border ${currentStatusConfig.color} shadow-sm space-y-4`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-xl bg-white/80 flex items-center justify-center shrink-0">
+            <div className="w-12 h-12 rounded-2xl bg-white/80 flex items-center justify-center shrink-0">
               <StatusIcon className="w-6 h-6 text-current" />
             </div>
             <div>
@@ -123,7 +123,7 @@ export default function VerificationCenterPage() {
               </span>
               <h2 className="text-xl font-bold">{currentStatusConfig.label}</h2>
               <p className="text-xs opacity-80 mt-0.5">
-                Account: {currentUser.fullName} ({currentUser.institutionName})
+                Account: {currentUser.fullName} ({currentUser.institutionName || 'Aditya University'})
               </p>
             </div>
           </div>
@@ -136,6 +136,48 @@ export default function VerificationCenterPage() {
               {effectiveVerificationStatus === 'pending' ? 'Update Documents' : 'Submit Student ID'}
             </button>
           )}
+        </div>
+      </div>
+
+      {/* Official Safe Handover Spots on Your Campus */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2 text-navy-900">
+            <ShieldCheck className="w-5 h-5 text-brand-green" />
+            <h3 className="font-extrabold text-base">Campus Safe Handover Zones</h3>
+          </div>
+          <span className="text-[11px] font-bold text-brand-blue bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+            {currentUser.institutionName || 'Aditya University'}
+          </span>
+        </div>
+        <p className="text-xs text-slate-500">
+          To ensure personal safety, never meet in unstaffed or secluded areas. PunarNova handovers and swaps are designated at these monitored campus locations:
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+            <span className="font-bold text-navy-900 block">Central Campus Library Foyer</span>
+            <span className="text-[11px] text-slate-500 block">Ground floor reading hall turnstiles • 9:00 AM - 7:00 PM</span>
+            <span className="text-[10px] text-brand-green font-bold">Staffed & Monitored Zone</span>
+          </div>
+
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+            <span className="font-bold text-navy-900 block">Student Activity Center (SAC)</span>
+            <span className="text-[11px] text-slate-500 block">Indoor complex reception lobby • 10:00 AM - 8:00 PM</span>
+            <span className="text-[10px] text-brand-green font-bold">Staffed & Monitored Zone</span>
+          </div>
+
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+            <span className="font-bold text-navy-900 block">Main Campus Security Gate #1</span>
+            <span className="text-[11px] text-slate-500 block">Visitor registration desk • 24 Hours staffed</span>
+            <span className="text-[10px] text-brand-green font-bold">24-Hour Security Post</span>
+          </div>
+
+          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
+            <span className="font-bold text-navy-900 block">Cotton Bhavan Food Court</span>
+            <span className="text-[11px] text-slate-500 block">Outdoor seating canopy • 8:00 AM - 9:30 PM</span>
+            <span className="text-[10px] text-brand-blue font-bold">Public Student Area</span>
+          </div>
         </div>
       </div>
 

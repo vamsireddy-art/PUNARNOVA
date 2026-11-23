@@ -84,13 +84,8 @@ export default function SignUpPage() {
         setOtpSent(true);
         setOtpVerified(false);
         setOtpTimer(60); // 60s cooldown
-        if (data.devOtp) {
-          setOtpSuccessMessage(`Verification code sent! (Code: ${data.devOtp})`);
-          setFormData((prev) => ({ ...prev, otpCode: data.devOtp }));
-        } else {
-          setOtpSuccessMessage('Verification code sent! Please check your email inbox.');
-          setFormData((prev) => ({ ...prev, otpCode: '' }));
-        }
+        setOtpSuccessMessage('Verification code sent! Please check your email inbox.');
+        setFormData((prev) => ({ ...prev, otpCode: '' }));
       } else {
         setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
       }
@@ -119,13 +114,8 @@ export default function SignUpPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setOtpTimer(60);
-        if (data.devOtp) {
-          setOtpSuccessMessage(`A new verification code has been generated: ${data.devOtp}`);
-          setFormData((prev) => ({ ...prev, otpCode: data.devOtp }));
-        } else {
-          setOtpSuccessMessage('A new verification code has been sent to your email.');
-          setFormData((prev) => ({ ...prev, otpCode: '' }));
-        }
+        setOtpSuccessMessage('A fresh verification code has been sent to your email inbox.');
+        setFormData((prev) => ({ ...prev, otpCode: '' }));
       } else {
         setErrorMessage(data.error || 'Failed to resend code.');
       }

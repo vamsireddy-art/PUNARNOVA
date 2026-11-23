@@ -29,7 +29,8 @@ export default function AdminDashboardPage() {
     reviewVerification, 
     products, 
     orders,
-    updateOrderStatus
+    updateOrderStatus,
+    productReports
   } = useAppStore();
 
   const [activeTab, setActiveTab] = useState<'verifications' | 'orders' | 'products' | 'ai_performance' | 'moderation'>('verifications');
@@ -158,7 +159,18 @@ export default function AdminDashboardPage() {
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          Product Listings Moderation ({products.length})
+          Product Listings ({products.length})
+        </button>
+
+        <button
+          onClick={() => setActiveTab('moderation')}
+          className={`pb-3 transition ${
+            activeTab === 'moderation'
+              ? 'border-b-2 border-rose-600 text-rose-600'
+              : 'text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          Safety Reports ({productReports.length})
         </button>
 
         <button
@@ -169,7 +181,7 @@ export default function AdminDashboardPage() {
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          AI Price Engine Diagnostics
+          AI Price Diagnostics
         </button>
       </div>
 
@@ -478,6 +490,76 @@ export default function AdminDashboardPage() {
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* TAB: SAFETY & CONTENT MODERATION */}
+      {activeTab === 'moderation' && (
+        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+            <div>
+              <h3 className="font-bold text-navy-900 text-base">
+                Campus Safety & Flagged Listing Queue ({productReports.length})
+              </h3>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Investigate student community reports regarding counterfeit books, misleading conditions, or safety violations.
+              </p>
+            </div>
+            <span className="px-3 py-1 rounded-full text-xs font-bold bg-rose-50 text-rose-700 border border-rose-200">
+              DPDP Compliance Desk
+            </span>
+          </div>
+
+          {productReports.length === 0 ? (
+            <div className="text-center py-10 text-xs text-slate-400 space-y-1">
+              <CheckCircle2 className="w-8 h-8 text-brand-green mx-auto mb-2" />
+              <p className="font-bold text-navy-900">Zero Pending Safety Reports</p>
+              <p>Campus marketplace is clean and in full compliance with student safety guidelines.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {productReports.map((report) => (
+                <div key={report.id} className="p-4 rounded-xl border border-rose-200 bg-rose-50/40 space-y-3 text-xs">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-navy-900 text-sm">{report.productTitle}</span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-800">
+                      Reason: {report.reason.replace(/_/g, ' ').toUpperCase()}
+                    </span>
+                  </div>
+
+                  <p className="text-slate-700 bg-white p-3 rounded-lg border border-slate-200 leading-relaxed">
+                    <strong>Reported by {report.reporterName}:</strong> "{report.description}"
+                  </p>
+
+                  <div className="flex items-center justify-between pt-2 border-t border-rose-200/60">
+                    <span className="text-[11px] text-slate-500 font-medium">
+                      Reported: {new Date(report.createdAt).toLocaleDateString()}
+                    </span>
+                    <div className="flex items-center space-x-2">
+                      <Link
+                        href={`/product/${report.productId}`}
+                        className="px-3 py-1.5 bg-white border border-slate-200 text-slate-700 hover:text-brand-blue rounded-lg text-xs font-semibold"
+                      >
+                        Inspect Listing
+                      </Link>
+                      <button
+                        onClick={() => alert(`Report for "${report.productTitle}" reviewed and marked as dismissed.`)}
+                        className="px-3 py-1.5 bg-slate-200 hover:bg-slate-300 text-slate-800 rounded-lg text-xs font-semibold"
+                      >
+                        Dismiss
+                      </button>
+                      <button
+                        onClick={() => alert(`Listing "${report.productTitle}" has been delisted from the marketplace.`)}
+                        className="px-3 py-1.5 bg-rose-600 hover:bg-rose-700 text-white rounded-lg text-xs font-bold"
+                      >
+                        Delist Product
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

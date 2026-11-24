@@ -122,7 +122,7 @@ export default function DashboardPage() {
           <div className="text-center max-w-3xl mx-auto mb-10">
             <div className="inline-flex items-center space-x-2 px-3.5 py-1 rounded-full bg-[#10B981]/15 border border-[#10B981]/30 text-[#D1FAE5] text-xs font-semibold mb-4">
               <span className="w-1.5 h-1.5 rounded-full bg-[#10B981]" />
-              <span>0% Commission • 100% Peer Verified • Safe Campus Handover</span>
+              <span>₹20 Flat Platform Fee • 100% Peer Verified • Safe Campus Handover</span>
             </div>
 
             <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white mb-4 leading-tight">
@@ -203,8 +203,8 @@ export default function DashboardPage() {
                 <Coins className="w-5 h-5" />
               </div>
               <div className="text-left">
-                <p className="font-bold text-white text-xs">0% Commission</p>
-                <p className="text-[11px] text-slate-400">Direct student handover</p>
+                <p className="font-bold text-white text-xs">₹20 Platform Fee</p>
+                <p className="text-[11px] text-slate-400">Flat fee per completed order</p>
               </div>
             </div>
 

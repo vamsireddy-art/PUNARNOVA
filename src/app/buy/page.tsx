@@ -138,7 +138,7 @@ function BuyMarketplaceContent() {
             Campus Marketplace
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-            Peer-verified educational materials, calculators, and tools with 0% platform fee.
+            Peer-verified educational materials, calculators, and tools with transparent ₹20 platform fee.
           </p>
         </div>
 

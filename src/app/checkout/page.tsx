@@ -83,9 +83,10 @@ export default function CheckoutPage() {
     (sum, item) => sum + item.product.sellingPrice * item.quantity,
     0
   );
+  const platformFee = 20;
   const deliveryFee = 0;
   const studentDiscount = 0;
-  const totalAmount = subtotal + deliveryFee - studentDiscount;
+  const totalAmount = subtotal + platformFee + deliveryFee - studentDiscount;
 
   if (cart.length === 0 && !confirmedOrder) {
     return (
@@ -150,6 +151,7 @@ export default function CheckoutPage() {
           unitPrice: i.product.sellingPrice,
         })),
         subtotal,
+        platformFee,
         deliveryFee,
         studentDiscount,
         totalAmount,
@@ -419,8 +421,8 @@ export default function CheckoutPage() {
                     <CreditCard className="w-4 h-4 mr-2 text-brand-blue" />
                     3. Payment Method
                   </h2>
-                  <span className="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded font-semibold border border-emerald-100">
-                    Direct 0% Commission
+                  <span className="text-[10px] text-[#065F46] bg-[#ECFDF5] px-2 py-0.5 rounded font-bold border border-[#A7F3D0]">
+                    ₹20 Flat Platform Fee
                   </span>
                 </div>
 
@@ -473,7 +475,7 @@ export default function CheckoutPage() {
                         <p className="text-[11px] text-slate-500">Inspect the book or calculator before paying</p>
                       </div>
                     </div>
-                    <span className="text-brand-green font-semibold text-[11px]">0% Fee</span>
+                    <span className="text-[#10B981] font-bold text-[11px]">Direct Handover</span>
                   </label>
                 </div>
               </div>
@@ -516,8 +518,8 @@ export default function CheckoutPage() {
                     <span className="text-emerald-600 font-semibold">FREE (Direct)</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Platform Commission</span>
-                    <span className="text-emerald-600 font-semibold">₹0 (0% Free)</span>
+                    <span>Platform Fee</span>
+                    <span className="text-slate-900 font-semibold">₹{platformFee}</span>
                   </div>
                   <div className="pt-2 border-t border-slate-100 flex justify-between text-sm font-black text-[#0B1F33]">
                     <span>Total Amount</span>

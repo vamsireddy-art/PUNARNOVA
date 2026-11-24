@@ -116,7 +116,7 @@ export function Navbar() {
             </span>
             <span className="hidden sm:inline text-slate-600">/</span>
             <span className="hidden sm:inline text-[#D1FAE5]">
-              0% Commission • Verified Handover Points
+              ₹20 Platform Fee • Verified Handover Points
             </span>
           </div>
 

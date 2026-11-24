@@ -121,7 +121,7 @@ export function CampusLocationMap({
       userMarker.bindPopup(`
         <div style="font-size: 12px; font-family: sans-serif; padding: 4px;">
           <strong style="color: #0f172a;">Your Approximate Location</strong>
-          <p style="color: #64748b; font-size: 11px; margin: 4px 0 0 0;">Items within 5 km eligible for zero-commission handovers.</p>
+          <p style="color: #64748b; font-size: 11px; margin: 4px 0 0 0;">Items within 5 km eligible for direct campus handovers.</p>
         </div>
       `);
       userMarkerRef.current = userMarker;

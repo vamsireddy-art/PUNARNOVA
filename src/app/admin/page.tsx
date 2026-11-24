@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
             <DollarSign className="w-4 h-4 text-purple-600" />
           </div>
           <p className="text-2xl font-extrabold text-navy-900">₹{totalSales.toLocaleString('en-IN')}</p>
-          <p className="text-[11px] text-purple-600 font-medium mt-1">0% Commission Model</p>
+          <p className="text-[11px] text-purple-600 font-medium mt-1">₹20 Platform Fee Model</p>
         </div>
       </div>
 

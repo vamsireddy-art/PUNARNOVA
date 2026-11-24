@@ -25,8 +25,8 @@ export default function CartPage() {
     0
   );
   const deliveryFee = 0; // Campus handover has 0 delivery fee for students!
-  const platformFee = 0; // 0% commission for peer student reuse
-  const totalAmount = subtotal + deliveryFee;
+  const platformFee = 20; // ₹20 flat platform fee per transaction
+  const totalAmount = subtotal + deliveryFee + platformFee;
 
   const hasSoldItems = cart.some((item) => item.product.status === 'sold');
 
@@ -161,8 +161,8 @@ export default function CartPage() {
               </div>
 
               <div className="flex justify-between">
-                <span>Student Platform Fee:</span>
-                <span className="font-semibold text-emerald-600">0% Commission</span>
+                <span>Platform Fee:</span>
+                <span className="font-semibold text-navy-900">₹{platformFee}</span>
               </div>
 
               <div className="pt-3 border-t border-slate-100 flex justify-between text-sm font-extrabold text-navy-900">

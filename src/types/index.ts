@@ -190,6 +190,7 @@ export interface Order {
     unitPrice: number;
   }[];
   subtotal: number;
+  platformFee?: number;
   deliveryFee: number;
   studentDiscount: number;
   totalAmount: number;

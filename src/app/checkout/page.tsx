@@ -72,7 +72,7 @@ export default function CheckoutPage() {
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
         <h2 className="text-xl font-bold text-navy-900 mb-2">Sign In Required to Checkout</h2>
         <p className="text-xs text-slate-500 mb-6">Please sign in with your campus student account to complete this order.</p>
-        <Link href="/auth/signin" className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition">
+        <Link href="/auth/signin" className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald">
           Sign In Now
         </Link>
       </div>
@@ -92,7 +92,7 @@ export default function CheckoutPage() {
       <div className="max-w-md mx-auto px-4 py-16 text-center">
         <h2 className="text-xl font-bold text-navy-900 mb-2">Your Cart is Empty</h2>
         <p className="text-xs text-slate-500 mb-6">Select educational products before checkout.</p>
-        <Link href="/buy" className="px-5 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-semibold">
+        <Link href="/buy" className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald">
           Browse Marketplace
         </Link>
       </div>
@@ -175,7 +175,7 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <div className="inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-brand-blue text-xs font-bold mb-2">
+            <div className="inline-flex items-center px-3 py-1 rounded-full bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] text-xs font-bold mb-2">
               Order Placed Successfully ✓
             </div>
             <h1 className="text-2xl font-extrabold text-navy-900">
@@ -206,13 +206,13 @@ export default function CheckoutPage() {
           <div className="flex items-center space-x-3 pt-2">
             <Link
               href="/orders"
-              className="flex-1 py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl text-xs transition shadow-soft"
+              className="flex-1 py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl text-xs transition shadow-emerald text-center"
             >
               Track in My Orders
             </Link>
             <Link
               href="/"
-              className="py-3 px-5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl text-xs transition"
+              className="py-3 px-5 bg-white hover:bg-[#ECFDF5] text-[#0B1F33] border-2 border-[#0B1F33] hover:border-[#10B981] font-bold rounded-xl text-xs transition text-center"
             >
               Home
             </Link>
@@ -256,12 +256,12 @@ export default function CheckoutPage() {
                     onClick={() => setFulfillmentType('campus_handover')}
                     className={`p-3.5 rounded-xl border text-left transition ${
                       fulfillmentType === 'campus_handover'
-                        ? 'border-brand-blue bg-blue-50/70 text-brand-blue font-bold ring-2 ring-blue-100'
+                        ? 'border-[#10B981] bg-[#ECFDF5] text-[#065F46] font-bold ring-2 ring-[#10B981]/20'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <p className="font-bold">Campus Peer Handover</p>
-                    <p className="text-[11px] text-slate-500 font-normal mt-0.5">
+                    <p className="font-bold text-[#0B1F33]">Campus Peer Handover</p>
+                    <p className="text-[11px] text-[#64748B] font-normal mt-0.5">
                       Meet at library, cafeteria, or department (Free)
                     </p>
                   </button>
@@ -271,12 +271,12 @@ export default function CheckoutPage() {
                     onClick={() => setFulfillmentType('hostel_delivery')}
                     className={`p-3.5 rounded-xl border text-left transition ${
                       fulfillmentType === 'hostel_delivery'
-                        ? 'border-brand-blue bg-blue-50/70 text-brand-blue font-bold ring-2 ring-blue-100'
+                        ? 'border-[#10B981] bg-[#ECFDF5] text-[#065F46] font-bold ring-2 ring-[#10B981]/20'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <p className="font-bold">Hostel Room Drop</p>
-                    <p className="text-[11px] text-slate-500 font-normal mt-0.5">
+                    <p className="font-bold text-[#0B1F33]">Hostel Room Drop</p>
+                    <p className="text-[11px] text-[#64748B] font-normal mt-0.5">
                       Direct handover to your hostel wing or room
                     </p>
                   </button>
@@ -519,16 +519,16 @@ export default function CheckoutPage() {
                     <span>Platform Commission</span>
                     <span className="text-emerald-600 font-semibold">₹0 (0% Free)</span>
                   </div>
-                  <div className="pt-2 border-t border-slate-100 flex justify-between text-sm font-extrabold text-navy-900">
+                  <div className="pt-2 border-t border-slate-100 flex justify-between text-sm font-black text-[#0B1F33]">
                     <span>Total Amount</span>
-                    <span className="text-brand-blue">₹{totalAmount.toLocaleString('en-IN')}</span>
+                    <span className="text-[#10B981]">₹{totalAmount.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isProcessing}
-                  className="w-full py-3.5 bg-brand-blue hover:bg-blue-600 disabled:opacity-50 text-white font-bold rounded-xl text-xs sm:text-sm transition shadow-brand flex items-center justify-center space-x-2"
+                  className="w-full py-3.5 bg-[#10B981] hover:bg-[#059669] disabled:opacity-50 text-[#0B1F33] hover:text-white font-black rounded-xl text-xs sm:text-sm transition shadow-emerald flex items-center justify-center space-x-2"
                 >
                   {isProcessing ? (
                     <span>Processing Order...</span>

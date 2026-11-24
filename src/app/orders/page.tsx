@@ -31,7 +31,7 @@ export default function MyOrdersPage() {
   if (!currentUser) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
-        <div className="w-14 h-14 rounded-full bg-blue-50 text-brand-blue mx-auto flex items-center justify-center">
+        <div className="w-14 h-14 rounded-2xl bg-[#ECFDF5] text-[#10B981] mx-auto flex items-center justify-center border border-[#A7F3D0]">
           <ShoppingBag className="w-7 h-7" />
         </div>
         <h2 className="text-xl font-bold text-navy-900">Sign In to View Your Orders</h2>
@@ -40,7 +40,7 @@ export default function MyOrdersPage() {
         </p>
         <Link
           href="/auth/signin"
-          className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition shadow-soft"
+          className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald"
         >
           Sign In Now
         </Link>
@@ -88,8 +88,8 @@ export default function MyOrdersPage() {
         );
       case 'confirmed':
         return (
-          <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 border border-blue-200 flex items-center">
-            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-blue-600" />
+          <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] flex items-center">
+            <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-[#10B981]" />
             Confirmed
           </span>
         );
@@ -201,9 +201,9 @@ export default function MyOrdersPage() {
           </button>
           <button
             onClick={() => setSelectedFilter('confirmed')}
-            className={`px-3 py-1.5 rounded-xl font-semibold transition ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition ${
               selectedFilter === 'confirmed'
-                ? 'bg-brand-blue text-white shadow-soft'
+                ? 'bg-[#10B981] text-[#0B1F33] shadow-emerald'
                 : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50'
             }`}
           >
@@ -248,7 +248,7 @@ export default function MyOrdersPage() {
           </p>
           <Link
             href="/buy"
-            className="px-5 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition inline-flex items-center space-x-1.5 shadow-soft"
+            className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition inline-flex items-center space-x-1.5 shadow-emerald"
           >
             <span>Browse Marketplace</span>
             <ArrowRight className="w-4 h-4" />
@@ -299,17 +299,17 @@ export default function MyOrdersPage() {
               </div>
 
               {/* Handover & Delivery Details Banner */}
-              <div className="p-4 sm:p-5 bg-gradient-to-r from-blue-50/60 to-indigo-50/40 border-b border-blue-100 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+              <div className="p-4 sm:p-5 bg-gradient-to-r from-[#ECFDF5] to-emerald-50/40 border-b border-[#A7F3D0] flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
                 <div className="flex items-start space-x-3.5">
-                  <div className="p-2.5 bg-brand-blue text-white rounded-2xl shadow-soft shrink-0">
+                  <div className="p-2.5 bg-[#0B1F33] text-[#10B981] rounded-2xl shadow-soft shrink-0">
                     <QrCode className="w-5 h-5" />
                   </div>
                   <div>
                     <div className="flex items-center space-x-2">
-                      <p className="font-bold text-navy-900 text-sm">
+                      <p className="font-bold text-[#0B1F33] text-sm">
                         Physical Handover OTP Code:
                       </p>
-                      <span className="font-mono text-base font-extrabold text-brand-blue bg-white px-2 py-0.5 rounded-lg border border-blue-200">
+                      <span className="font-mono text-base font-black text-[#0B1F33] bg-white px-2 py-0.5 rounded-lg border border-[#A7F3D0]">
                         #{order.pickupCode || '4821'}
                       </span>
                     </div>
@@ -383,12 +383,12 @@ export default function MyOrdersPage() {
                   <div className="flex flex-col items-center">
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-1 text-xs font-bold ${
                       getStepState(order.orderStatus, 'confirmed') === 'done' || getStepState(order.orderStatus, 'confirmed') === 'active'
-                        ? 'bg-blue-600 text-white'
+                        ? 'bg-[#10B981] text-[#0B1F33]'
                         : 'bg-slate-200 text-slate-500'
                     }`}>
                       2
                     </div>
-                    <span className={getStepState(order.orderStatus, 'confirmed') === 'active' ? 'text-brand-blue font-bold' : 'text-slate-500'}>
+                    <span className={getStepState(order.orderStatus, 'confirmed') === 'active' ? 'text-[#10B981] font-bold' : 'text-slate-500'}>
                       Confirmed
                     </span>
                   </div>
@@ -438,7 +438,7 @@ export default function MyOrdersPage() {
                       <button
                         onClick={() => handleAdminStatusChange(order.id, 'confirmed')}
                         disabled={statusUpdatingId === order.id}
-                        className="px-3.5 py-2 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl transition shadow-sm flex items-center space-x-1.5"
+                        className="px-3.5 py-2 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl transition shadow-emerald flex items-center space-x-1.5"
                       >
                         <Check className="w-3.5 h-3.5" />
                         <span>Confirm Order</span>

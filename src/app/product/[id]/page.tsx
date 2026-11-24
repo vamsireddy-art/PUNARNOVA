@@ -45,7 +45,7 @@ export default function ProductDetailPage() {
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
         <h2 className="text-xl font-bold text-navy-900 mb-2">Product Not Found</h2>
         <p className="text-xs text-slate-500 mb-4">This educational listing may have been sold or removed.</p>
-        <Link href="/buy" className="px-4 py-2 bg-brand-blue text-white rounded-xl text-xs font-semibold">
+        <Link href="/buy" className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald">
           Back to Marketplace
         </Link>
       </div>
@@ -324,15 +324,15 @@ export default function ProductDetailPage() {
           </div>
 
           {/* PRIMARY PURCHASE ACTIONS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
             <button
               onClick={handleAddToCart}
               disabled={product.status === 'sold'}
-              className="py-3 px-4 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 font-semibold rounded-lg text-xs sm:text-sm flex items-center justify-center space-x-2 transition-colors disabled:opacity-50"
+              className="py-3 px-4 bg-white hover:bg-[#ECFDF5] text-[#0B1F33] border-2 border-[#0B1F33] hover:border-[#10B981] font-bold rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 transition disabled:opacity-50"
             >
               {addedAnimation ? (
                 <>
-                  <Check className="w-4 h-4 text-emerald-600" />
+                  <Check className="w-4 h-4 text-[#10B981]" />
                   <span>Added to Cart!</span>
                 </>
               ) : (
@@ -346,7 +346,7 @@ export default function ProductDetailPage() {
             <button
               onClick={handleBuyNow}
               disabled={product.status === 'sold'}
-              className="py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs sm:text-sm flex items-center justify-center space-x-2 transition-colors shadow-xs disabled:opacity-50"
+              className="py-3 px-4 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl text-xs sm:text-sm flex items-center justify-center space-x-2 transition shadow-emerald disabled:opacity-50"
             >
               <span>Instant Checkout</span>
             </button>

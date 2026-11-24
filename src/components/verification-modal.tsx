@@ -100,7 +100,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
             <div className="pt-4 flex justify-center">
               <button
                 onClick={onClose}
-                className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition shadow-soft"
+                className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition shadow-emerald"
               >
                 Continue to Dashboard
               </button>
@@ -161,11 +161,11 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                     onClick={() => setDocType('student_id_card')}
                     className={`p-2.5 rounded-xl border text-left text-xs transition ${
                       docType === 'student_id_card'
-                        ? 'border-brand-blue bg-blue-50/70 text-brand-blue font-bold'
+                        ? 'border-[#10B981] bg-[#ECFDF5] text-[#065F46] font-bold'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <FileText className="w-4 h-4 mb-1" />
+                    <FileText className="w-4 h-4 mb-1 text-[#10B981]" />
                     <span>Student ID Card</span>
                   </button>
                   <button
@@ -173,11 +173,11 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                     onClick={() => setDocType('institutional_email')}
                     className={`p-2.5 rounded-xl border text-left text-xs transition ${
                       docType === 'institutional_email'
-                        ? 'border-brand-blue bg-blue-50/70 text-brand-blue font-bold'
+                        ? 'border-[#10B981] bg-[#ECFDF5] text-[#065F46] font-bold'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    <Sparkles className="w-4 h-4 mb-1" />
+                    <Sparkles className="w-4 h-4 mb-1 text-[#10B981]" />
                     <span>Institutional Domain</span>
                   </button>
                 </div>
@@ -194,7 +194,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                   value={legalName}
                   onChange={(e) => setLegalName(e.target.value)}
                   placeholder="e.g. Karri Mohan Vamsi Reddy"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981]"
                 />
               </div>
 
@@ -209,7 +209,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                   value={idNumber}
                   onChange={(e) => setIdNumber(e.target.value)}
                   placeholder="e.g. 22A91A05XX / DU2023-ECO-19"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981]"
                 />
               </div>
 
@@ -218,7 +218,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                 <label className="block font-bold text-slate-700 mb-1">
                   Upload Photo of Student ID Card (Front)
                 </label>
-                <label className="border-2 border-dashed border-slate-200 hover:border-brand-blue rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50/60 hover:bg-blue-50/30 transition">
+                <label className="border-2 border-dashed border-[#E2E8F0] hover:border-[#10B981] rounded-xl p-4 flex flex-col items-center justify-center cursor-pointer bg-slate-50/60 hover:bg-[#ECFDF5]/50 transition">
                   <Upload className="w-6 h-6 text-slate-400 mb-1" />
                   <span className="text-xs font-semibold text-slate-700">
                     {fileName ? fileName : 'Click to select JPG, PNG, or PDF'}
@@ -239,7 +239,7 @@ export function VerificationModal({ isOpen, onClose, onSuccess }: VerificationMo
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3 bg-brand-blue text-white rounded-2xl text-xs font-extrabold hover:bg-blue-600 disabled:opacity-50 transition shadow-soft flex items-center justify-center space-x-2"
+                  className="w-full py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black disabled:opacity-50 transition shadow-emerald flex items-center justify-center space-x-2"
                 >
                   {isSubmitting ? (
                     <span>Encrypting & Verifying ID...</span>

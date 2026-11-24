@@ -52,50 +52,50 @@ export default function SignInPage() {
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative overflow-hidden">
-      {/* Ambient background light matching PunarNova cosmic identity */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-[#F8FAFC] relative overflow-hidden">
+      {/* Ambient background light matching Emerald + Deep Navy identity */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ECFDF5] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#D1FAE5]/40 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-md w-full bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/80 p-8 shadow-elevated space-y-6 relative z-10">
+      <div className="max-w-md w-full bg-white rounded-3xl border border-[#E2E8F0] p-8 shadow-elevated space-y-6 relative z-10">
         {/* Brand Header */}
         <div className="text-center space-y-3">
           <Link href="/" className="inline-flex flex-col items-center group">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-elevated border border-slate-700/40 bg-navy-950 mb-1 group-hover:scale-105 transition">
+            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-elevated border border-[#132B45]/20 bg-[#0B1F33] p-1.5 mb-1 group-hover:scale-105 transition">
               <Image
                 src="/logo.png"
                 alt="PunarNova Logo"
                 width={64}
                 height={64}
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
                 priority
               />
             </div>
             <div className="leading-tight">
-              <span className="text-xl font-bold tracking-tight text-navy-900">
-                Punar<span className="text-brand-blue ml-0.5">Nova</span>
+              <span className="text-xl font-black tracking-tight text-[#0B1F33]">
+                Punar<span className="text-[#10B981] ml-0.5">Nova</span>
               </span>
-              <span className="text-[10px] block text-slate-500 font-medium tracking-wider uppercase">
+              <span className="text-[10px] block text-[#64748B] font-medium tracking-wider uppercase">
                 Discover • Reuse • Grow
               </span>
             </div>
           </Link>
-          <h1 className="text-2xl font-extrabold text-navy-900">Sign In to Campus Account</h1>
-          <p className="text-xs text-slate-500">
+          <h1 className="text-2xl font-black text-[#0B1F33]">Sign In to Campus Account</h1>
+          <p className="text-xs text-[#64748B]">
             Enter the credentials created during registration.
           </p>
         </div>
 
         {/* Error message */}
         {errorMessage && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl">
+          <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 text-xs rounded-xl font-medium">
             {errorMessage}
           </div>
         )}
 
         <form onSubmit={handleSignIn} className="space-y-4 text-xs">
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-bold text-[#0F172A] mb-1">
               Email Address or Username
             </label>
             <div className="relative">
@@ -105,19 +105,19 @@ export default function SignInPage() {
                 placeholder="e.g. yourname@iitb.ac.in or admin@punarnova.in"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-[#0F172A]"
               />
-              <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <UserIcon className="w-4 h-4 text-[#64748B] absolute left-3 top-3" />
             </div>
           </div>
 
           <div>
             <div className="flex justify-between items-center mb-1">
-              <label className="font-semibold text-slate-700">Password</label>
+              <label className="font-bold text-[#0F172A]">Password</label>
               <button
                 type="button"
                 onClick={() => setShowForgotModal(true)}
-                className="text-[11px] text-brand-blue hover:underline"
+                className="text-[11px] text-[#10B981] hover:underline font-bold"
               >
                 Forgot Password?
               </button>
@@ -129,13 +129,13 @@ export default function SignInPage() {
                 placeholder="Enter your account password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                className="w-full pl-9 pr-9 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-[#0F172A]"
               />
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3" />
+              <Lock className="w-4 h-4 text-[#64748B] absolute left-3 top-3" />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600"
+                className="absolute right-3 top-3 text-[#64748B] hover:text-[#0B1F33]"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
               </button>
@@ -143,12 +143,12 @@ export default function SignInPage() {
           </div>
 
           <div className="flex items-center justify-between pt-1">
-            <label className="flex items-center space-x-2 text-[11px] text-slate-600 cursor-pointer">
+            <label className="flex items-center space-x-2 text-[11px] text-[#64748B] cursor-pointer">
               <input
                 type="checkbox"
                 checked={rememberMe}
                 onChange={(e) => setRememberMe(e.target.checked)}
-                className="rounded text-brand-blue focus:ring-brand-blue"
+                className="rounded text-[#10B981] focus:ring-[#10B981]"
               />
               <span>Remember me on this browser</span>
             </label>
@@ -157,7 +157,7 @@ export default function SignInPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl text-xs transition shadow-soft flex items-center justify-center space-x-1.5 disabled:opacity-50"
+            className="w-full py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl text-xs transition shadow-emerald flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <span>Verifying Credentials...</span>
@@ -171,23 +171,23 @@ export default function SignInPage() {
         </form>
 
         {/* Administrator Credentials Card */}
-        <div className="p-3.5 bg-slate-50 border border-slate-200/80 rounded-2xl text-[11px] text-slate-600 space-y-1">
-          <p className="font-bold text-slate-800 flex items-center">
-            <ShieldCheck className="w-3.5 h-3.5 mr-1 text-purple-600" />
-            Administrator Credentials:
+        <div className="p-4 bg-[#ECFDF5] border border-[#A7F3D0] rounded-2xl text-[11px] text-slate-700 space-y-1.5">
+          <p className="font-bold text-[#065F46] flex items-center">
+            <ShieldCheck className="w-4 h-4 mr-1 text-[#10B981]" />
+            Administrator Demo Credentials:
           </p>
-          <div className="font-mono text-[10px] bg-white p-2 rounded-lg border border-slate-200 space-y-0.5">
-            <div><span className="text-slate-400">Email:</span> <span className="text-slate-800 font-semibold select-all">admin@punarnova.in</span></div>
-            <div><span className="text-slate-400">Password:</span> <span className="text-slate-800 font-semibold select-all">Admin@PunarNova2026</span></div>
+          <div className="font-mono text-[10px] bg-white p-2.5 rounded-xl border border-[#A7F3D0] space-y-0.5">
+            <div><span className="text-[#64748B]">Email:</span> <span className="text-[#0B1F33] font-bold select-all">admin@punarnova.in</span></div>
+            <div><span className="text-[#64748B]">Password:</span> <span className="text-[#0B1F33] font-bold select-all">Admin@PunarNova2026</span></div>
           </div>
-          <p className="text-[10px] text-slate-400 pt-0.5">
-            Students: Please sign up with your email to create your personal account.
+          <p className="text-[10px] text-[#64748B] pt-0.5">
+            Students: Please sign up with your college email to create your personal account.
           </p>
         </div>
 
-        <div className="text-center text-xs text-slate-500 pt-1">
+        <div className="text-center text-xs text-[#64748B] pt-1">
           New student on campus?{' '}
-          <Link href="/auth/signup" className="text-brand-blue font-bold hover:underline">
+          <Link href="/auth/signup" className="text-[#0B1F33] font-black hover:text-[#10B981] underline ml-1">
             Create an Account with Email OTP
           </Link>
         </div>
@@ -196,7 +196,7 @@ export default function SignInPage() {
       {/* Forgot Password Modal */}
       {showForgotModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative text-xs space-y-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl relative text-xs space-y-4 border border-[#E2E8F0]">
             <button
               onClick={() => {
                 setShowForgotModal(false);
@@ -207,33 +207,33 @@ export default function SignInPage() {
               <X className="w-4 h-4" />
             </button>
 
-            <h3 className="font-bold text-navy-900 text-base">Reset Account Password</h3>
+            <h3 className="font-extrabold text-[#0B1F33] text-base">Reset Account Password</h3>
             {resetSent ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-emerald-600 font-semibold">
+                <p className="text-[#065F46] font-bold bg-[#ECFDF5] p-3 rounded-xl border border-[#A7F3D0]">
                   Password reset link has been dispatched to your institutional email.
                 </p>
                 <button
                   onClick={() => setShowForgotModal(false)}
-                  className="w-full py-2 bg-navy-900 text-white rounded-xl font-semibold"
+                  className="w-full py-2.5 bg-[#0B1F33] text-white rounded-xl font-bold"
                 >
                   Done
                 </button>
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-slate-500">
+                <p className="text-[#64748B]">
                   Enter your registered institutional email or phone number to receive an OTP reset link.
                 </p>
                 <input
                   type="text"
                   placeholder="Enter email or mobile..."
-                  className="w-full p-2.5 rounded-xl border border-slate-200"
+                  className="w-full p-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:border-[#10B981]"
                 />
                 <button
                   type="button"
                   onClick={() => setResetSent(true)}
-                  className="w-full py-2.5 bg-brand-blue text-white rounded-xl font-bold"
+                  className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl font-bold transition shadow-sm"
                 >
                   Send Reset Link
                 </button>

@@ -88,75 +88,76 @@ export default function SustainabilityDashboardPage() {
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="bg-slate-900 text-white rounded-xl p-6 sm:p-8 border border-slate-800 space-y-3 shadow-sm">
-        <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">
+      <div className="bg-[#0B1F33] text-white rounded-2xl p-6 sm:p-8 border border-[#132B45] space-y-3 shadow-elevated relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-[#10B981]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#132B45] text-[#10B981] text-xs font-bold border border-[#1E3E61] relative z-10">
           <Leaf className="w-3.5 h-3.5" />
           <span>Campus Circular Economy & Verified Impact</span>
         </div>
 
-        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+        <h1 className="text-2xl sm:text-4xl font-black tracking-tight text-white relative z-10">
           Campus Environmental Ledger
         </h1>
 
-        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
+        <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed relative z-10">
           Every educational textbook, scientific calculator, and drafting kit reused on campus directly displaces raw pulp consumption, water intensive bleaching, and electronics manufacturing.
         </p>
 
-        <div className="flex items-center space-x-2 text-[11px] text-emerald-400 font-medium pt-1">
-          <CheckCircle2 className="w-3.5 h-3.5" />
+        <div className="flex items-center space-x-2 text-[11px] text-[#10B981] font-bold pt-1 relative z-10">
+          <CheckCircle2 className="w-4 h-4" />
           <span>Real-time metrics strictly derived from completed campus handovers & verified peer swaps.</span>
         </div>
       </div>
 
       {/* Primary 4 Dynamic Impact Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Products Reused</span>
-            <Repeat className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-bold text-[#64748B]">Products Reused</span>
+            <Repeat className="w-4 h-4 text-[#10B981]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalItemsReused}</p>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-2xl sm:text-3xl font-black text-[#0B1F33] tracking-tight">{totalItemsReused}</p>
+          <p className="text-[11px] text-[#64748B]">
             {verifiedTransactionsCount} verified handovers completed
           </p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Direct Student Savings</span>
-            <DollarSign className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold text-[#64748B]">Direct Student Savings</span>
+            <DollarSign className="w-4 h-4 text-[#10B981]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">₹{totalMoneySavedInr.toLocaleString('en-IN')}</p>
-          <p className="text-[11px] text-slate-500">Compared to new retail bookstore costs</p>
+          <p className="text-2xl sm:text-3xl font-black text-[#0B1F33] tracking-tight">₹{totalMoneySavedInr.toLocaleString('en-IN')}</p>
+          <p className="text-[11px] text-[#64748B]">Compared to new retail bookstore costs</p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Embodied CO₂ Avoided</span>
-            <Leaf className="w-4 h-4 text-emerald-600" />
+            <span className="text-xs font-bold text-[#64748B]">Embodied CO₂ Avoided</span>
+            <Leaf className="w-4 h-4 text-[#10B981]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalCo2AvoidedKg} <span className="text-sm font-normal text-slate-400">kg</span></p>
-          <p className="text-[11px] text-slate-500">1.54 kg CO₂ per kg paper avoided</p>
+          <p className="text-2xl sm:text-3xl font-black text-[#0B1F33] tracking-tight">{totalCo2AvoidedKg} <span className="text-sm font-normal text-slate-400">kg</span></p>
+          <p className="text-[11px] text-[#64748B]">1.54 kg CO₂ per kg paper avoided</p>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+        <div className="bg-white p-5 rounded-2xl border border-[#E2E8F0] shadow-xs space-y-1.5">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-slate-500">Water Conserved</span>
-            <Droplet className="w-4 h-4 text-sky-600" />
+            <span className="text-xs font-bold text-[#64748B]">Water Conserved</span>
+            <Droplet className="w-4 h-4 text-[#34D399]" />
           </div>
-          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalWaterSavedLiters} <span className="text-sm font-normal text-slate-400">L</span></p>
-          <p className="text-[11px] text-slate-500">26 L per kg virgin paper avoided</p>
+          <p className="text-2xl sm:text-3xl font-black text-[#0B1F33] tracking-tight">{totalWaterSavedLiters} <span className="text-sm font-normal text-slate-400">L</span></p>
+          <p className="text-[11px] text-[#64748B]">26 L per kg virgin paper avoided</p>
         </div>
       </div>
 
       {/* Campus Sustainability Leaderboard */}
-      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
+      <div className="bg-white rounded-2xl border border-[#E2E8F0] p-6 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
-          <div className="flex items-center space-x-2 text-slate-900">
-            <Medal className="w-5 h-5 text-blue-600" />
-            <h2 className="text-base sm:text-lg font-bold">Campus Sustainability Leaderboard</h2>
+          <div className="flex items-center space-x-2 text-[#0B1F33]">
+            <Medal className="w-5 h-5 text-[#10B981]" />
+            <h2 className="text-base sm:text-lg font-black">Campus Sustainability Leaderboard</h2>
           </div>
-          <span className="text-xs text-slate-500">Ranked by verified reuse volume and completed swaps</span>
+          <span className="text-xs text-[#64748B]">Ranked by verified reuse volume and completed swaps</span>
         </div>
 
         <div className="divide-y divide-slate-100 text-xs">
@@ -175,16 +176,16 @@ export default function SustainabilityDashboardPage() {
                   #{idx + 1}
                 </span>
                 <div>
-                  <h3 className="font-semibold text-slate-900 text-sm">{entry.institution.name}</h3>
-                  <p className="text-[11px] text-slate-400">
+                  <h3 className="font-bold text-[#0B1F33] text-sm">{entry.institution.name}</h3>
+                  <p className="text-[11px] text-[#64748B]">
                     {entry.institution.city}, {entry.institution.state} • Domain: {entry.institution.emailDomain || 'verified'}
                   </p>
                 </div>
               </div>
 
               <div className="text-right space-y-0.5">
-                <span className="font-bold text-slate-900 text-sm block">{entry.points} Green Points</span>
-                <span className="text-[11px] text-emerald-700 font-medium block">
+                <span className="font-black text-[#0B1F33] text-sm block">{entry.points} Green Points</span>
+                <span className="text-[11px] text-[#065F46] font-bold block">
                   {entry.itemsReused} items • {entry.co2SavedKg} kg CO₂ saved
                 </span>
               </div>
@@ -194,12 +195,12 @@ export default function SustainabilityDashboardPage() {
       </div>
 
       {/* Green Rewards & Achievement Badges */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex items-center space-x-2 text-navy-900">
-          <Award className="w-6 h-6 text-brand-green" />
-          <h2 className="text-lg sm:text-xl font-extrabold">Student Sustainability Badges</h2>
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 sm:p-8 shadow-xs space-y-6">
+        <div className="flex items-center space-x-2 text-[#0B1F33]">
+          <Award className="w-6 h-6 text-[#10B981]" />
+          <h2 className="text-lg sm:text-xl font-black">Student Sustainability Badges</h2>
         </div>
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[#64748B]">
           Complete verified campus handovers, buy second-hand educational references, and propose barters to unlock achievement badges.
         </p>
 
@@ -211,32 +212,32 @@ export default function SustainabilityDashboardPage() {
                 key={b.id}
                 className={`p-5 rounded-2xl border transition space-y-3 ${
                   b.unlocked
-                    ? 'bg-emerald-50/50 border-emerald-200 text-navy-900'
+                    ? 'bg-[#ECFDF5] border-[#A7F3D0] text-[#0B1F33]'
                     : 'bg-slate-50 border-slate-200 opacity-60'
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
-                    b.unlocked ? 'bg-brand-green text-white shadow-soft' : 'bg-slate-200 text-slate-500'
+                    b.unlocked ? 'bg-[#10B981] text-[#0B1F33] shadow-emerald font-bold' : 'bg-slate-200 text-slate-500'
                   }`}>
                     <Icon className="w-5 h-5" />
                   </div>
-                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${
-                    b.unlocked ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-500'
+                  <span className={`px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider ${
+                    b.unlocked ? 'bg-[#D1FAE5] text-[#065F46]' : 'bg-slate-200 text-slate-500'
                   }`}>
                     {b.tier}
                   </span>
                 </div>
 
                 <div>
-                  <h3 className="font-bold text-sm text-navy-900">{b.title}</h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">{b.desc}</p>
+                  <h3 className="font-bold text-sm text-[#0B1F33]">{b.title}</h3>
+                  <p className="text-[11px] text-[#64748B] mt-0.5 leading-relaxed">{b.desc}</p>
                 </div>
 
                 <div className="pt-2 text-[10px] font-bold">
                   {b.unlocked ? (
-                    <span className="text-emerald-700 flex items-center">
-                      <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-brand-green" /> Unlocked & Active
+                    <span className="text-[#065F46] flex items-center font-bold">
+                      <CheckCircle2 className="w-3.5 h-3.5 mr-1 text-[#10B981]" /> Unlocked & Active
                     </span>
                   ) : (
                     <span className="text-slate-400">Locked • Complete more peer handovers</span>
@@ -249,30 +250,30 @@ export default function SustainabilityDashboardPage() {
       </div>
 
       {/* Documented Calculation Methodology & Transparency */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6 text-xs text-slate-600 leading-relaxed">
-        <div className="flex items-center space-x-2 text-navy-900">
-          <Info className="w-5 h-5 text-brand-blue" />
-          <h2 className="text-lg font-bold">Documented Environmental Methodology (EPN Standard)</h2>
+      <div className="bg-white rounded-3xl border border-[#E2E8F0] p-6 sm:p-8 shadow-xs space-y-6 text-xs text-[#64748B] leading-relaxed">
+        <div className="flex items-center space-x-2 text-[#0B1F33]">
+          <Info className="w-5 h-5 text-[#10B981]" />
+          <h2 className="text-lg font-black">Documented Environmental Methodology (EPN Standard)</h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="p-4 bg-slate-50 rounded-2xl space-y-2 border border-slate-100">
-            <h3 className="font-bold text-navy-900 text-sm">Textbook Lifecycle Assessment (LCA)</h3>
+          <div className="p-4 bg-[#F8FAFC] rounded-2xl space-y-2 border border-[#E2E8F0]">
+            <h3 className="font-bold text-[#0B1F33] text-sm">Textbook Lifecycle Assessment (LCA)</h3>
             <p>
               According to Environmental Paper Network (EPN) life-cycle assessments, manufacturing 1 kg of virgin educational textbook paper generates approximately <strong>1.54 kg of CO₂ equivalent</strong> and consumes 26 liters of industrial processing water.
             </p>
           </div>
 
-          <div className="p-4 bg-slate-50 rounded-2xl space-y-2 border border-slate-100">
-            <h3 className="font-bold text-navy-900 text-sm">Electronics & Lab Gear Embodied Carbon</h3>
+          <div className="p-4 bg-[#F8FAFC] rounded-2xl space-y-2 border border-[#E2E8F0]">
+            <h3 className="font-bold text-[#0B1F33] text-sm">Electronics & Lab Gear Embodied Carbon</h3>
             <p>
               Electronic hardware such as scientific calculators and laboratory instrumentation embodies silicon fabrication and battery supply emissions of approximately <strong>4.2 kg CO₂</strong> per unit. Reusing keeps functional chips in circulation.
             </p>
           </div>
         </div>
 
-        <div className="p-4 bg-emerald-50 border border-emerald-200 rounded-2xl text-emerald-900 text-[11px] flex items-start space-x-2">
-          <ShieldCheck className="w-4 h-4 text-brand-green shrink-0 mt-0.5" />
+        <div className="p-4 bg-[#ECFDF5] border border-[#A7F3D0] rounded-2xl text-[#065F46] text-[11px] flex items-start space-x-2 font-medium">
+          <ShieldCheck className="w-4 h-4 text-[#10B981] shrink-0 mt-0.5" />
           <span>
             <strong>Commitment to Integrity:</strong> PunarNova never displays fabricated metrics. Carbon savings, money saved, and product reuse tallies increase exclusively as verified orders and exchanges reach completion.
           </span>

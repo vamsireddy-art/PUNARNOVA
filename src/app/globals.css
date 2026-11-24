@@ -3,47 +3,88 @@
 @tailwind utilities;
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
+  /* Official PunarNova Eco-Tech Color Palette */
+  --primary-emerald: #10B981;
+  --emerald-hover: #059669;
+  --deep-navy: #0B1F33;
+  --light-mint: #D1FAE5;
+  --light-green-bg: #ECFDF5;
+  --main-bg: #F8FAFC;
+  --white: #FFFFFF;
+  --secondary-text: #64748B;
+  --dark-text: #0F172A;
+  --accent-amber: #F59E0B;
+  --border-color: #E2E8F0;
+
+  --background: var(--main-bg);
+  --foreground: var(--dark-text);
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
+  color: var(--dark-text);
+  background: var(--main-bg);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Professional card and surface styles */
-.card-clean {
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+/* Primary Eco-Tech Button */
+.btn-primary {
+  background-color: #10B981;
+  color: #0B1F33;
+  font-weight: 600;
+  border-radius: 0.5rem;
   transition: all 0.15s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #059669;
+  color: #FFFFFF;
+}
+
+/* Secondary Button: White with Deep Navy Border */
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: #0B1F33;
+  border: 1.5px solid #0B1F33;
+  font-weight: 600;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #ECFDF5;
+  border-color: #10B981;
+  color: #047857;
+}
+
+/* Surface & Card Classes */
+.card-clean {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  box-shadow: 0 1px 3px 0 rgba(11, 31, 51, 0.04);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .card-clean:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+  border-color: #A7F3D0;
+  box-shadow: 0 8px 24px -4px rgba(16, 185, 129, 0.12);
   transform: translateY(-1px);
 }
 
-/* Custom scrollbars */
+/* Custom Scrollbars in Eco Tones */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: #F8FAFC;
 }
 ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #CBD5E1;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #10B981;
 }
 
 @layer utilities {

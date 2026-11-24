@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
           <p className="text-slate-600 font-mono text-[11px]">Email: admin@punarnova.in</p>
           <p className="text-slate-600 font-mono text-[11px]">Password: Admin@PunarNova2026</p>
         </div>
-        <Link href="/auth/signin" className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition">
+        <Link href="/auth/signin" className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald">
           Sign In as Administrator
         </Link>
       </div>
@@ -206,7 +206,7 @@ export default function AdminDashboardPage() {
                   <div className="space-y-1">
                     <div className="flex items-center space-x-2">
                       <span className="font-bold text-navy-900 text-sm">{v.userName}</span>
-                      <span className="bg-blue-50 text-brand-blue px-2 py-0.5 rounded text-[10px] font-semibold">
+                      <span className="bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0] px-2 py-0.5 rounded text-[10px] font-bold">
                         {v.institutionName}
                       </span>
                     </div>
@@ -285,7 +285,7 @@ export default function AdminDashboardPage() {
                         o.orderStatus === 'completed'
                           ? 'bg-emerald-100 text-emerald-800'
                           : o.orderStatus === 'confirmed'
-                          ? 'bg-blue-100 text-blue-800'
+                          ? 'bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]'
                           : o.orderStatus === 'ready_for_handover' || o.orderStatus === 'ready_for_pickup'
                           ? 'bg-purple-100 text-purple-800'
                           : o.orderStatus === 'created'
@@ -330,7 +330,7 @@ export default function AdminDashboardPage() {
                             setTimeout(() => setStatusUpdatingId(null), 300);
                           }}
                           disabled={statusUpdatingId === o.id}
-                          className="px-3 py-1.5 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-lg text-[11px] transition shadow-sm"
+                          className="px-3 py-1.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-lg text-[11px] transition shadow-emerald"
                         >
                           ✓ Confirm Order
                         </button>
@@ -464,7 +464,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            <div className="p-4 bg-blue-50/60 border border-blue-200 rounded-xl text-xs text-slate-700 space-y-2">
+            <div className="p-4 bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl text-xs text-[#065F46] space-y-2">
               <h4 className="font-bold text-navy-900">Feature Importance Weights:</h4>
               <div className="space-y-1.5 text-[11px]">
                 <div className="flex justify-between">

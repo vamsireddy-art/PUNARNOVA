@@ -80,7 +80,7 @@ export function ReportModal({ isOpen, product, onClose }: ReportModalProps) {
               <select
                 value={reason}
                 onChange={(e: any) => setReason(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue bg-white text-slate-700 font-medium"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] bg-white text-slate-700 font-medium"
               >
                 <option value="misleading_condition">Misrepresented Condition (Damages omitted)</option>
                 <option value="counterfeit">Pirated Photocopy / Unlicensed Reprint</option>
@@ -99,7 +99,7 @@ export function ReportModal({ isOpen, product, onClose }: ReportModalProps) {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Describe what is inaccurate or unsafe about this listing..."
-                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue text-xs text-slate-800"
+                className="w-full px-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-xs text-slate-800"
               />
             </div>
 

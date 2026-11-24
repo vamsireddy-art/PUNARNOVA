@@ -51,16 +51,16 @@ export default function VerificationCenterPage() {
   if (!currentUser) {
     return (
       <div className="max-w-md mx-auto px-4 py-16 text-center space-y-4">
-        <div className="w-12 h-12 rounded-full bg-blue-50 text-brand-blue mx-auto flex items-center justify-center">
-          <ShieldCheck className="w-6 h-6" />
+        <div className="w-14 h-14 rounded-2xl bg-[#ECFDF5] text-[#10B981] mx-auto flex items-center justify-center border border-[#A7F3D0]">
+          <ShieldCheck className="w-7 h-7" />
         </div>
-        <h2 className="text-xl font-bold text-navy-900">Sign In to Access Verification</h2>
-        <p className="text-xs text-slate-500">
+        <h2 className="text-xl font-black text-[#0B1F33]">Sign In to Access Verification</h2>
+        <p className="text-xs text-[#64748B]">
           Please sign in to view your student verification status or submit your student ID card.
         </p>
         <Link
           href="/auth/signin"
-          className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-semibold inline-block transition"
+          className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black inline-block transition shadow-emerald"
         >
           Sign In Now
         </Link>
@@ -131,7 +131,7 @@ export default function VerificationCenterPage() {
           {effectiveVerificationStatus !== 'verified' && (
             <button
               onClick={() => setShowModal(true)}
-              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-lg transition-colors shadow-xs shrink-0"
+              className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black text-xs rounded-xl transition shadow-emerald shrink-0"
             >
               {effectiveVerificationStatus === 'pending' ? 'Update Documents' : 'Submit Student ID'}
             </button>

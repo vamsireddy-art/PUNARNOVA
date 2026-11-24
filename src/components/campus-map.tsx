@@ -203,13 +203,13 @@ export function CampusLocationMap({
       {/* Header bar */}
       <div className="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
         <div className="flex items-center space-x-2.5">
-          <div className="w-8 h-8 rounded-lg bg-blue-50 text-brand-blue flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-[#ECFDF5] text-[#10B981] flex items-center justify-center border border-[#A7F3D0]">
             <Compass className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 flex items-center space-x-1.5">
+            <h3 className="text-sm font-bold text-[#0B1F33] flex items-center space-x-1.5">
               <span>Campus Proximity Radar</span>
-              <span className="text-[10px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">
+              <span className="text-[10px] font-bold bg-[#ECFDF5] text-[#065F46] px-2 py-0.5 rounded-full border border-[#A7F3D0]">
                 Leaflet OpenStreetMap
               </span>
             </h3>
@@ -225,9 +225,9 @@ export function CampusLocationMap({
           <button
             type="button"
             onClick={handleLocateMe}
-            className="inline-flex items-center space-x-1.5 text-xs font-medium px-3 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition shadow-xs cursor-pointer"
+            className="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-xl bg-white border border-[#0B1F33] text-[#0B1F33] hover:bg-[#ECFDF5] hover:border-[#10B981] transition shadow-xs cursor-pointer"
           >
-            <Navigation className="w-3.5 h-3.5 text-brand-blue" />
+            <Navigation className="w-3.5 h-3.5 text-[#10B981]" />
             <span>Auto-Locate Me</span>
           </button>
         </div>

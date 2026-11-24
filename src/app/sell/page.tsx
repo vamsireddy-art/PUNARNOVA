@@ -203,19 +203,19 @@ export default function SellWizardPage() {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Login / Verification Warning Banner */}
       {!currentUser ? (
-        <div className="p-4 bg-blue-50 border border-blue-200 rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-blue-900 shadow-sm">
+        <div className="p-4 bg-[#ECFDF5] border border-[#A7F3D0] rounded-3xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#065F46] shadow-sm">
           <div className="flex items-center space-x-2">
-            <AlertCircle className="w-5 h-5 text-brand-blue shrink-0" />
+            <AlertCircle className="w-5 h-5 text-[#10B981] shrink-0" />
             <div>
-              <p className="font-bold">Sign In Required to Publish</p>
-              <p className="text-blue-700">
+              <p className="font-bold text-[#0B1F33]">Sign In Required to Publish</p>
+              <p className="text-[#065F46]">
                 You must be signed in with your campus student account to publish listings on PunarNova.
               </p>
             </div>
           </div>
           <Link
             href="/auth/signin"
-            className="px-4 py-2 bg-brand-blue hover:bg-blue-600 text-white font-semibold rounded-xl shrink-0 transition"
+            className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl shrink-0 transition shadow-emerald"
           >
             Sign In Now
           </Link>
@@ -514,7 +514,7 @@ export default function SellWizardPage() {
                     onClick={() => setFormData({ ...formData, condition: cond })}
                     className={`p-2.5 rounded-xl border text-center transition ${
                       formData.condition === cond
-                        ? 'border-brand-blue bg-blue-50 text-brand-blue font-bold ring-2 ring-blue-100'
+                        ? 'border-[#10B981] bg-[#ECFDF5] text-[#065F46] font-bold ring-2 ring-[#10B981]/20'
                         : 'border-slate-200 hover:bg-slate-50 text-slate-700'
                     }`}
                   >
@@ -585,7 +585,7 @@ export default function SellWizardPage() {
             </button>
             <button
               onClick={handleProceedToScan}
-              className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition flex items-center space-x-1.5 shadow-soft"
+              className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition flex items-center space-x-1.5 shadow-emerald"
             >
               <span>Next: AI Vision Analysis</span>
               <ArrowRight className="w-4 h-4" />
@@ -606,7 +606,7 @@ export default function SellWizardPage() {
 
           {isScanning ? (
             <div className="p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full border-4 border-brand-blue border-t-transparent animate-spin mx-auto" />
+              <div className="w-12 h-12 rounded-full border-4 border-[#10B981] border-t-transparent animate-spin mx-auto" />
               <p className="text-xs font-bold text-navy-900">Running Computer Vision Diagnostics...</p>
             </div>
           ) : visionScan ? (
@@ -639,7 +639,7 @@ export default function SellWizardPage() {
                 </button>
                 <button
                   onClick={handleProceedToPrediction}
-                  className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-bold hover:bg-blue-600 transition flex items-center space-x-1.5 shadow-soft"
+                  className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition flex items-center space-x-1.5 shadow-emerald"
                 >
                   <span>Generate ML Price Valuation</span>
                   <ArrowRight className="w-4 h-4" />
@@ -729,7 +729,7 @@ export default function SellWizardPage() {
                 </button>
                 <button
                   onClick={() => setCurrentStep(6)}
-                  className="px-6 py-2.5 bg-brand-blue text-white rounded-2xl text-xs font-bold hover:bg-blue-600 transition flex items-center space-x-1.5 shadow-soft"
+                  className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition flex items-center space-x-1.5 shadow-emerald"
                 >
                   <span>Review & Publish</span>
                   <ArrowRight className="w-4 h-4" />
@@ -790,7 +790,7 @@ export default function SellWizardPage() {
             </button>
             <button
               onClick={handlePublish}
-              className="px-8 py-3 bg-brand-green hover:bg-emerald-600 text-white rounded-2xl text-xs sm:text-sm font-extrabold transition shadow-elevated flex items-center space-x-2"
+              className="px-8 py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs sm:text-sm font-black transition shadow-emerald flex items-center space-x-2"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>Publish Listing to Campus</span>

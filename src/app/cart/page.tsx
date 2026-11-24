@@ -72,7 +72,7 @@ export default function CartPage() {
           </p>
           <Link
             href="/buy"
-            className="px-6 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition inline-flex items-center space-x-1.5"
+            className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition inline-flex items-center space-x-1.5 shadow-emerald"
           >
             <span>Explore Marketplace</span>
             <ArrowRight className="w-4 h-4" />
@@ -95,7 +95,7 @@ export default function CartPage() {
                   />
                   <div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-blue-50 text-brand-blue">
+                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
                         {item.product.categoryName}
                       </span>
                       <span className="text-[10px] text-slate-400">
@@ -167,13 +167,13 @@ export default function CartPage() {
 
               <div className="pt-3 border-t border-slate-100 flex justify-between text-sm font-extrabold text-navy-900">
                 <span>Total Amount:</span>
-                <span className="text-brand-blue text-base">₹{totalAmount.toLocaleString('en-IN')}</span>
+                <span className="text-[#10B981] text-base font-black">₹{totalAmount.toLocaleString('en-IN')}</span>
               </div>
             </div>
 
-            <div className="p-3 bg-blue-50/70 border border-blue-100 rounded-xl text-[11px] text-blue-900 space-y-1">
+            <div className="p-3 bg-[#ECFDF5] border border-[#A7F3D0] rounded-xl text-[11px] text-[#065F46] space-y-1">
               <div className="flex items-center font-bold">
-                <Sparkles className="w-3.5 h-3.5 text-brand-blue mr-1" />
+                <Sparkles className="w-3.5 h-3.5 text-[#10B981] mr-1" />
                 <span>Zero Risk Campus Handover</span>
               </div>
               <p className="text-slate-600 leading-tight">
@@ -184,7 +184,7 @@ export default function CartPage() {
             <button
               onClick={() => router.push('/checkout')}
               disabled={hasSoldItems}
-              className="w-full py-3.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition shadow-soft flex items-center justify-center space-x-2 disabled:opacity-50"
+              className="w-full py-3.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition shadow-emerald flex items-center justify-center space-x-2 disabled:opacity-50"
             >
               <span>Proceed to Checkout</span>
               <ArrowRight className="w-4 h-4" />

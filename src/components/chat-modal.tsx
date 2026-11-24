@@ -212,7 +212,7 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
 
         {/* Offer Negotiation Panel */}
         {showOfferBox && (
-          <div className="p-3 bg-blue-50/70 border-b border-blue-200 flex items-center space-x-2">
+          <div className="p-3 bg-[#ECFDF5] border-b border-[#A7F3D0] flex items-center space-x-2">
             <div className="relative flex-1">
               <span className="absolute left-2.5 top-2 text-slate-500 font-bold text-xs">₹</span>
               <input
@@ -225,7 +225,7 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
             </div>
             <button
               onClick={handleSendOffer}
-              className="px-3 py-1.5 bg-brand-blue text-white rounded-lg text-xs font-semibold hover:bg-blue-600 transition"
+              className="px-4 py-1.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-bold rounded-lg text-xs transition"
             >
               Send Offer
             </button>
@@ -257,18 +257,18 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
                 <div
                   className={`max-w-[80%] rounded-2xl p-3 text-xs leading-relaxed ${
                     isMe
-                      ? 'bg-brand-blue text-white rounded-br-xs'
+                      ? 'bg-[#0B1F33] text-white rounded-br-xs'
                       : 'bg-slate-100 text-navy-900 rounded-bl-xs'
                   }`}
                 >
                   {m.messageType === 'price_offer' && (
-                    <div className="flex items-center space-x-1.5 mb-1 font-bold text-amber-200">
+                    <div className="flex items-center space-x-1.5 mb-1 font-bold text-[#10B981]">
                       <Tag className="w-3.5 h-3.5" />
                       <span>Negotiation Offer</span>
                     </div>
                   )}
                   {m.messageType === 'deal_accepted' && (
-                    <div className="flex items-center space-x-1.5 mb-1 font-bold text-emerald-600">
+                    <div className="flex items-center space-x-1.5 mb-1 font-bold text-emerald-400">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       <span>Offer Accepted</span>
                     </div>
@@ -289,12 +289,12 @@ export function ChatModal({ product, isOpen, onClose }: ChatModalProps) {
             disabled={isBlocked}
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            className="flex-1 bg-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue"
+            className="flex-1 bg-white text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981]"
           />
           <button
             type="submit"
             disabled={!inputText.trim() || isBlocked}
-            className="p-2.5 rounded-xl bg-brand-blue text-white hover:bg-blue-600 disabled:opacity-50 transition"
+            className="p-2.5 rounded-xl bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white disabled:opacity-50 transition"
           >
             <Send className="w-4 h-4" />
           </button>

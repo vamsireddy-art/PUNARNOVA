@@ -84,7 +84,9 @@ export default function SignUpPage() {
         setOtpSent(true);
         setOtpVerified(false);
         setOtpTimer(60); // 60s cooldown
-        setOtpSuccessMessage('Verification code sent! Please check your email inbox.');
+        // Sanitize any debug leaks
+        const cleanMsg = (data.message || '').replace(/\(Code:[^)]*\)/gi, '').trim();
+        setOtpSuccessMessage(cleanMsg || 'Verification code sent! Please check your email inbox.');
         setFormData((prev) => ({ ...prev, otpCode: '' }));
       } else {
         setErrorMessage(data.error || 'Failed to send OTP. Please try again.');
@@ -114,7 +116,8 @@ export default function SignUpPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setOtpTimer(60);
-        setOtpSuccessMessage('A fresh verification code has been sent to your email inbox.');
+        const cleanMsg = (data.message || '').replace(/\(Code:[^)]*\)/gi, '').trim();
+        setOtpSuccessMessage(cleanMsg || 'A fresh verification code has been sent to your email inbox.');
         setFormData((prev) => ({ ...prev, otpCode: '' }));
       } else {
         setErrorMessage(data.error || 'Failed to resend code.');
@@ -142,24 +145,33 @@ export default function SignUpPage() {
       const data = await res.json();
       if (res.ok && data.success) {
         setOtpVerified(true);
-        setOtpSuccessMessage('Email verified successfully!');
-        setErrorMessage('');
+        setOtpSuccessMessage('');
       } else {
-        setErrorMessage(data.error || 'Invalid or expired OTP code.');
+        setErrorMessage(data.error || 'Invalid or expired verification code. Please check and try again.');
       }
     } catch (e) {
-      setErrorMessage('Network error while verifying OTP.');
+      setErrorMessage('Network error during verification. Please try again.');
     } finally {
       setIsVerifyingOtp(false);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
+    if (!formData.acceptTerms) {
+      setErrorMessage('Please accept the campus community terms of service.');
+      return;
+    }
+
     if (!otpVerified) {
-      setErrorMessage('Please verify your educational email with the OTP code first.');
+      setErrorMessage('Please verify your educational email address via OTP before completing registration.');
+      return;
+    }
+
+    if (formData.password.length < 8) {
+      setErrorMessage('Password must be at least 8 characters long.');
       return;
     }
 
@@ -168,39 +180,37 @@ export default function SignUpPage() {
       return;
     }
 
-    if (!formData.acceptTerms) {
-      setErrorMessage('You must accept the terms of service and DPDP privacy policy.');
-      return;
-    }
-
-    const finalInstitutionName = formData.isCustomInstitution
-      ? formData.customInstitutionName.trim()
-      : formData.institutionName;
-
-    if (formData.isCustomInstitution && !formData.customInstitutionName.trim()) {
-      setErrorMessage('Please enter the name of your college / institution.');
-      return;
-    }
-
     setIsSubmitting(true);
 
-    if (formData.isCustomInstitution && formData.customInstitutionName.trim()) {
-      addCustomInstitution(formData.customInstitutionName.trim(), formData.institutionType);
-    }
+    try {
+      // 1. Resolve institution
+      let targetInstitutionName = formData.institutionName;
+      let targetInstitutionId = 'inst-custom';
 
-    setTimeout(() => {
-      // Create user session and register account credentials
+      if (formData.isCustomInstitution && formData.customInstitutionName.trim()) {
+        const added = addCustomInstitution(formData.customInstitutionName.trim(), formData.institutionType);
+        targetInstitutionName = added.name;
+        targetInstitutionId = added.id;
+      } else {
+        const found = allInstitutions.find((i) => i.name === formData.institutionName);
+        if (found) {
+          targetInstitutionId = found.id;
+        }
+      }
+
+      // 2. Register account persistently in shared localStorage
       const newUser: User = {
         id: `user-${Date.now()}`,
         email: formData.email.trim().toLowerCase(),
         mobileNumber: formData.mobileNumber.trim(),
         fullName: formData.fullName.trim(),
-        institutionName: finalInstitutionName,
-        institutionType: formData.institutionType,
         role: 'student',
         isMobileVerified: true,
         isEmailVerified: true,
-        verificationStatus: 'pending',
+        verificationStatus: 'not_verified',
+        institutionId: targetInstitutionId,
+        institutionName: targetInstitutionName,
+        institutionType: formData.institutionType,
         salesCount: 0,
         purchasesCount: 0,
         carbonSavedKg: 0,
@@ -209,56 +219,62 @@ export default function SignUpPage() {
       };
 
       registerAccount(newUser, formData.password);
+
+      // 3. Set user in app state
       setCurrentUser(newUser);
 
+      // Redirect to verification center to submit ID card for full seller privileges
+      router.push('/verification');
+    } catch (err: any) {
+      setErrorMessage(err.message || 'An error occurred during account creation.');
+    } finally {
       setIsSubmitting(false);
-      router.push('/');
-    }, 1000);
+    }
   };
 
   return (
-    <div className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50/20 to-slate-100 relative overflow-hidden">
-      {/* Ambient background light matching PunarNova cosmic identity */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-sky-200/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-blue-200/25 rounded-full blur-3xl pointer-events-none" />
+    <div className="min-h-screen py-10 px-4 sm:px-6 lg:px-8 flex items-center justify-center bg-[#F8FAFC] relative overflow-hidden">
+      {/* Ambient background light matching Emerald + Deep Navy identity */}
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#ECFDF5] rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#D1FAE5]/40 rounded-full blur-3xl pointer-events-none" />
 
-      <div className="max-w-xl w-full bg-white/95 backdrop-blur-md rounded-3xl border border-slate-200/80 p-8 shadow-elevated space-y-6 relative z-10">
+      <div className="max-w-xl w-full bg-white rounded-3xl border border-[#E2E8F0] p-6 sm:p-8 shadow-elevated space-y-6 relative z-10">
         {/* Brand Header */}
-        <div className="text-center space-y-3">
+        <div className="text-center space-y-2">
           <Link href="/" className="inline-flex flex-col items-center group">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden shadow-elevated border border-slate-700/40 bg-navy-950 mb-1 group-hover:scale-105 transition">
+            <div className="w-14 h-14 rounded-2xl overflow-hidden shadow-elevated border border-[#132B45]/20 bg-[#0B1F33] p-1.5 mb-1 group-hover:scale-105 transition">
               <Image
                 src="/logo.png"
                 alt="PunarNova Logo"
-                width={64}
-                height={64}
-                className="w-full h-full object-cover"
+                width={56}
+                height={56}
+                className="w-full h-full object-contain"
                 priority
               />
             </div>
             <div className="leading-tight">
-              <span className="text-xl font-bold tracking-tight text-navy-900">
-                Punar<span className="text-brand-blue ml-0.5">Nova</span>
+              <span className="text-xl font-extrabold tracking-tight text-[#0B1F33]">
+                Punar<span className="text-[#10B981] ml-0.5">Nova</span>
               </span>
-              <span className="text-[10px] block text-slate-500 font-medium tracking-wider uppercase">
+              <span className="text-[10px] block text-[#64748B] font-medium tracking-wider uppercase">
                 Discover • Reuse • Grow
               </span>
             </div>
           </Link>
-          <h1 className="text-2xl font-extrabold text-navy-900">Create Student Account</h1>
-          <p className="text-xs text-slate-500">
+          <h1 className="text-2xl font-black text-[#0B1F33]">Create Student Account</h1>
+          <p className="text-xs text-[#64748B]">
             Join your campus peer network to buy, sell, and swap educational materials.
           </p>
         </div>
 
         {/* Registration Form Divider */}
         <div className="relative flex items-center justify-center">
-          <div className="border-t border-slate-200 w-full" />
-          <span className="bg-white px-3 text-[11px] text-slate-400 absolute">Register with student email</span>
+          <div className="border-t border-[#E2E8F0] w-full" />
+          <span className="bg-white px-3 text-[11px] text-[#64748B] font-medium absolute">Register with student email</span>
         </div>
 
         {errorMessage && (
-          <div className="p-3 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs">
+          <div className="p-3.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-xs font-medium">
             {errorMessage}
           </div>
         )}
@@ -266,7 +282,7 @@ export default function SignUpPage() {
         <form onSubmit={handleSubmit} className="space-y-4 text-xs">
           {/* 1. Full Name */}
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Full Legal Name</label>
+            <label className="block font-bold text-[#0F172A] mb-1">Full Legal Name</label>
             <div className="relative">
               <input
                 type="text"
@@ -274,15 +290,15 @@ export default function SignUpPage() {
                 placeholder="e.g. Aarav Sharma"
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-[#0F172A]"
               />
-              <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <UserIcon className="w-4 h-4 text-[#64748B] absolute left-3 top-3" />
             </div>
           </div>
 
           {/* 2. Institutional Email Address & Email OTP Verification */}
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">
+            <label className="block font-bold text-[#0F172A] mb-1">
               Email Address (Email OTP Verification)
             </label>
             <div className="flex space-x-2">
@@ -294,16 +310,16 @@ export default function SignUpPage() {
                   placeholder="e.g. aarav.sharma@iitb.ac.in"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 disabled:bg-slate-100 disabled:text-slate-500"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] disabled:bg-slate-100 disabled:text-slate-500 text-[#0F172A]"
                 />
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                <Mail className="w-4 h-4 text-[#64748B] absolute left-3 top-3" />
               </div>
               {!otpVerified && (
                 <button
                   type="button"
                   disabled={isSendingOtp || (otpSent && otpTimer > 0)}
                   onClick={otpSent ? handleResendOtp : handleSendOtp}
-                  className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-400 text-white rounded-xl font-medium transition shrink-0 text-xs sm:text-sm"
+                  className="px-4 py-2.5 bg-[#0B1F33] hover:bg-[#132B45] disabled:bg-slate-300 text-white rounded-xl font-bold transition shrink-0 text-xs sm:text-sm shadow-xs"
                 >
                   {isSendingOtp
                     ? 'Sending...'
@@ -318,46 +334,46 @@ export default function SignUpPage() {
 
             {/* OTP Status Messages */}
             {otpSuccessMessage && !otpVerified && (
-              <p className="text-xs text-blue-700 bg-blue-50 border border-blue-200 p-2 rounded-lg mt-2">
+              <p className="text-xs text-[#065F46] bg-[#ECFDF5] border border-[#A7F3D0] p-2.5 rounded-xl mt-2 font-medium">
                 {otpSuccessMessage}
               </p>
             )}
 
             {/* Email OTP Input Box */}
             {otpSent && !otpVerified && (
-              <div className="mt-2.5 p-3.5 bg-blue-50/70 rounded-xl border border-blue-200/80 space-y-2">
+              <div className="mt-2.5 p-4 bg-[#ECFDF5] rounded-2xl border border-[#A7F3D0] space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium text-blue-900 text-xs">
+                  <span className="font-bold text-[#0B1F33] text-xs">
                     Enter the 6-digit verification code sent to your email:
                   </span>
                 </div>
-                <div className="flex space-x-2">
+                <div className="flex space-x-2.5">
                   <input
                     type="text"
                     maxLength={6}
                     placeholder="123456"
                     value={formData.otpCode}
                     onChange={(e) => setFormData({ ...formData, otpCode: e.target.value.replace(/\D/g, '') })}
-                    className="w-36 text-center font-mono font-bold tracking-widest text-base p-2 rounded-lg border border-blue-300 bg-white focus:outline-none focus:ring-2 focus:ring-brand-blue"
+                    className="w-36 text-center font-mono font-black tracking-widest text-base p-2.5 rounded-xl border border-[#10B981] bg-white focus:outline-none focus:ring-2 focus:ring-[#10B981]/40 text-[#0B1F33]"
                   />
                   <button
                     type="button"
                     disabled={isVerifyingOtp || formData.otpCode.length !== 6}
                     onClick={handleVerifyOtp}
-                    className="px-4 py-2 bg-brand-blue hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-semibold text-xs transition"
+                    className="px-5 py-2.5 bg-[#10B981] hover:bg-[#059669] disabled:opacity-50 text-[#0B1F33] hover:text-white rounded-xl font-bold text-xs transition shadow-xs"
                   >
                     {isVerifyingOtp ? 'Verifying...' : 'Verify OTP'}
                   </button>
                 </div>
-                <p className="text-[11px] text-slate-500">
+                <p className="text-[11px] text-[#64748B]">
                   Didn't receive the code? Check spam or click Resend {otpTimer > 0 ? `in ${otpTimer}s` : 'above'}.
                 </p>
               </div>
             )}
 
             {otpVerified && (
-              <p className="text-emerald-700 bg-emerald-50 border border-emerald-200/60 p-2 rounded-lg text-xs font-medium flex items-center mt-2">
-                <CheckCircle2 className="w-4 h-4 mr-1.5 text-emerald-600 shrink-0" />
+              <p className="text-[#065F46] bg-[#ECFDF5] border border-[#A7F3D0] p-2.5 rounded-xl text-xs font-bold flex items-center mt-2">
+                <CheckCircle2 className="w-4 h-4 mr-1.5 text-[#10B981] shrink-0" />
                 Email address verified successfully via One-Time Password
               </p>
             )}
@@ -365,7 +381,7 @@ export default function SignUpPage() {
 
           {/* 3. Mobile Number */}
           <div>
-            <label className="block font-semibold text-slate-700 mb-1">Mobile Contact Number</label>
+            <label className="block font-bold text-[#0F172A] mb-1">Mobile Contact Number</label>
             <div className="relative">
               <input
                 type="tel"
@@ -373,9 +389,9 @@ export default function SignUpPage() {
                 placeholder="+91 98765 43210"
                 value={formData.mobileNumber}
                 onChange={(e) => setFormData({ ...formData, mobileNumber: e.target.value })}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-200 focus:outline-none"
+                className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-[#0F172A]"
               />
-              <Phone className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Phone className="w-4 h-4 text-[#64748B] absolute left-3 top-3" />
             </div>
           </div>
 
@@ -383,11 +399,11 @@ export default function SignUpPage() {
           <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Institution Type</label>
+                <label className="block font-bold text-[#0F172A] mb-1">Institution Type</label>
                 <select
                   value={formData.institutionType}
                   onChange={(e) => setFormData({ ...formData, institutionType: e.target.value as any })}
-                  className="w-full p-2 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none"
+                  className="w-full p-2.5 rounded-xl border border-[#E2E8F0] bg-slate-50 focus:outline-none focus:border-[#10B981] font-medium text-[#0F172A]"
                 >
                   <option value="School">School</option>
                   <option value="College">College</option>
@@ -396,7 +412,7 @@ export default function SignUpPage() {
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Institution Campus</label>
+                <label className="block font-bold text-[#0F172A] mb-1">Institution Campus</label>
                 {!formData.isCustomInstitution ? (
                   <select
                     value={formData.institutionName}
@@ -407,7 +423,7 @@ export default function SignUpPage() {
                         setFormData({ ...formData, institutionName: e.target.value });
                       }
                     }}
-                    className="w-full p-2 rounded-xl border border-slate-200 bg-slate-50 focus:outline-none"
+                    className="w-full p-2.5 rounded-xl border border-[#E2E8F0] bg-slate-50 focus:outline-none focus:border-[#10B981] font-medium text-[#0F172A]"
                   >
                     {allInstitutions.map((inst) => (
                       <option key={inst.id} value={inst.name}>{inst.name}</option>
@@ -421,12 +437,12 @@ export default function SignUpPage() {
                       placeholder="Type your college/school name..."
                       value={formData.customInstitutionName}
                       onChange={(e) => setFormData({ ...formData, customInstitutionName: e.target.value })}
-                      className="w-full p-2 rounded-xl border border-brand-blue bg-blue-50/20 focus:outline-none text-slate-800"
+                      className="w-full p-2.5 rounded-xl border border-[#10B981] bg-[#ECFDF5]/50 focus:outline-none text-[#0F172A]"
                     />
                     <button
                       type="button"
                       onClick={() => setFormData({ ...formData, isCustomInstitution: false })}
-                      className="text-[11px] text-slate-400 hover:text-slate-600 mt-1 inline-block underline"
+                      className="text-[11px] text-[#64748B] hover:text-[#0B1F33] mt-1 inline-block underline font-medium"
                     >
                       ← Back to list
                     </button>
@@ -440,7 +456,7 @@ export default function SignUpPage() {
                 <button
                   type="button"
                   onClick={() => setFormData({ ...formData, isCustomInstitution: true })}
-                  className="text-xs text-brand-blue font-semibold hover:underline"
+                  className="text-xs text-[#10B981] font-bold hover:underline"
                 >
                   Can't find your college? Click to enter your college name
                 </button>
@@ -451,7 +467,7 @@ export default function SignUpPage() {
           {/* 5. Password & Confirm Password */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Password</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Password</label>
               <div className="relative">
                 <input
                   type={showPassword ? 'text' : 'password'}
@@ -459,12 +475,12 @@ export default function SignUpPage() {
                   placeholder="Min 8 characters"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-3 pr-8 py-2 rounded-xl border border-slate-200"
+                  className="w-full pl-3 pr-8 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:border-[#10B981] text-[#0F172A]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-3 text-[#64748B] hover:text-[#0B1F33]"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -472,7 +488,7 @@ export default function SignUpPage() {
             </div>
 
             <div>
-              <label className="block font-semibold text-slate-700 mb-1">Confirm Password</label>
+              <label className="block font-bold text-[#0F172A] mb-1">Confirm Password</label>
               <div className="relative">
                 <input
                   type={showConfirmPassword ? 'text' : 'password'}
@@ -480,12 +496,12 @@ export default function SignUpPage() {
                   placeholder="Re-enter password"
                   value={formData.confirmPassword}
                   onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                  className="w-full pl-3 pr-8 py-2 rounded-xl border border-slate-200"
+                  className="w-full pl-3 pr-8 py-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:border-[#10B981] text-[#0F172A]"
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-2.5 top-2.5 text-slate-400 hover:text-slate-600"
+                  className="absolute right-2.5 top-3 text-[#64748B] hover:text-[#0B1F33]"
                 >
                   {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -494,22 +510,22 @@ export default function SignUpPage() {
           </div>
 
           {/* Terms & Privacy acceptance */}
-          <label className="flex items-start space-x-2 text-[11px] text-slate-600 pt-2 cursor-pointer">
+          <label className="flex items-start space-x-2 text-[11px] text-[#64748B] pt-2 cursor-pointer">
             <input
               type="checkbox"
               checked={formData.acceptTerms}
               onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-              className="rounded text-brand-blue focus:ring-brand-blue mt-0.5"
+              className="rounded text-[#10B981] focus:ring-[#10B981] mt-0.5"
             />
             <span>
-              I accept the <strong className="text-slate-800">Terms of Campus Service</strong> and consent to DPDP Act privacy safeguards for student verification.
+              I accept the <strong className="text-[#0B1F33]">Terms of Campus Service</strong> and consent to DPDP Act privacy safeguards for student verification.
             </span>
           </label>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-xl text-xs transition shadow-soft flex items-center justify-center space-x-1.5 disabled:opacity-50"
+            className="w-full py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl text-xs transition shadow-emerald flex items-center justify-center space-x-2 disabled:opacity-50"
           >
             {isSubmitting ? (
               <span>Creating Verified Profile...</span>
@@ -522,9 +538,9 @@ export default function SignUpPage() {
           </button>
         </form>
 
-        <div className="text-center text-xs text-slate-500 pt-2">
+        <div className="text-center text-xs text-[#64748B] pt-2">
           Already have an account?{' '}
-          <Link href="/auth/signin" className="text-brand-blue font-bold hover:underline">
+          <Link href="/auth/signin" className="text-[#0B1F33] font-black hover:text-[#10B981] underline ml-1">
             Sign In here
           </Link>
         </div>

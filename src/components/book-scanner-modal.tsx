@@ -98,9 +98,9 @@ export function BookScannerModal({ isOpen, onClose, onApply }: BookScannerModalP
       <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl border border-slate-200 relative max-h-[90vh] overflow-y-auto space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-          <div className="flex items-center space-x-2 text-brand-blue">
-            <Scan className="w-5 h-5 text-brand-green" />
-            <h3 className="font-extrabold text-navy-900 text-base sm:text-lg">
+          <div className="flex items-center space-x-2 text-[#0B1F33]">
+            <Scan className="w-5 h-5 text-[#10B981]" />
+            <h3 className="font-black text-[#0B1F33] text-base sm:text-lg">
               Smart Book & Barcode Scanner
             </h3>
           </div>
@@ -109,26 +109,26 @@ export function BookScannerModal({ isOpen, onClose, onApply }: BookScannerModalP
           </button>
         </div>
 
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-[#64748B]">
           Upload a photo of the textbook cover, barcode, or back page. Our AI extracts Title, Author, Edition, and ISBN instantly.
         </p>
 
         {/* Upload Dropzone */}
         <div className="space-y-3">
-          <label className="border-2 border-dashed border-slate-200 hover:border-brand-blue rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer bg-slate-50/70 hover:bg-blue-50/30 transition text-center">
+          <label className="border-2 border-dashed border-[#E2E8F0] hover:border-[#10B981] rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer bg-[#F8FAFC] hover:bg-[#ECFDF5]/50 transition text-center">
             {imagePreview ? (
               <div className="relative w-32 h-44 rounded-xl overflow-hidden shadow-md mb-2 border border-slate-200">
                 <img src={imagePreview} alt="Book Preview" className="w-full h-full object-cover" />
               </div>
             ) : (
-              <div className="w-12 h-12 rounded-2xl bg-blue-100/70 text-brand-blue flex items-center justify-center mb-2">
+              <div className="w-12 h-12 rounded-2xl bg-[#ECFDF5] text-[#10B981] flex items-center justify-center mb-2">
                 <Camera className="w-6 h-6" />
               </div>
             )}
-            <span className="text-xs font-bold text-slate-800">
+            <span className="text-xs font-bold text-[#0B1F33]">
               {imagePreview ? 'Click to Change Book Photo' : 'Upload or Snap Book Cover / Barcode'}
             </span>
-            <span className="text-[11px] text-slate-400 mt-1">Supports JPG, PNG, WebP (Max 5MB)</span>
+            <span className="text-[11px] text-[#64748B] mt-1">Supports JPG, PNG, WebP (Max 5MB)</span>
             <input type="file" accept="image/*" capture="environment" onChange={handleFileUpload} className="hidden" />
           </label>
         </div>
@@ -140,12 +140,12 @@ export function BookScannerModal({ isOpen, onClose, onApply }: BookScannerModalP
             value={manualIsbn}
             onChange={(e) => setManualIsbn(e.target.value)}
             placeholder="Or enter 10/13-digit ISBN (e.g. 9780262046305)"
-            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-brand-blue/30 focus:border-brand-blue"
+            className="flex-1 text-xs px-3.5 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981]"
           />
           <button
             type="submit"
             disabled={isScanning || !manualIsbn.trim()}
-            className="px-4 py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-semibold disabled:opacity-50 transition"
+            className="px-4 py-2.5 bg-[#0B1F33] hover:bg-[#132B45] text-white rounded-xl text-xs font-bold disabled:opacity-50 transition"
           >
             Lookup
           </button>
@@ -153,24 +153,24 @@ export function BookScannerModal({ isOpen, onClose, onApply }: BookScannerModalP
 
         {/* Scanning Spinner */}
         {isScanning && (
-          <div className="p-6 bg-blue-50/60 rounded-2xl border border-blue-100 flex items-center justify-center space-x-3 text-brand-blue">
-            <RefreshCw className="w-5 h-5 animate-spin" />
+          <div className="p-6 bg-[#ECFDF5] rounded-2xl border border-[#A7F3D0] flex items-center justify-center space-x-3 text-[#065F46]">
+            <RefreshCw className="w-5 h-5 animate-spin text-[#10B981]" />
             <span className="text-xs font-bold">Scanning text & reconciling academic database...</span>
           </div>
         )}
 
         {/* Scan Results & Manual Corrections */}
         {scanResult && !isScanning && (
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-4">
+          <div className="bg-[#F8FAFC] border border-[#E2E8F0] rounded-2xl p-4 space-y-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-1.5 text-brand-green text-xs font-bold">
-                <Sparkles className="w-4 h-4" />
+              <div className="flex items-center space-x-1.5 text-[#065F46] text-xs font-bold">
+                <Sparkles className="w-4 h-4 text-[#10B981]" />
                 <span>Extracted Academic Metadata ({scanResult.confidence}% Confidence)</span>
               </div>
               <button
                 type="button"
                 onClick={() => setIsEditing(!isEditing)}
-                className="text-[11px] font-semibold text-brand-blue flex items-center space-x-1 hover:underline"
+                className="text-[11px] font-bold text-[#10B981] flex items-center space-x-1 hover:underline"
               >
                 <Edit3 className="w-3 h-3" />
                 <span>{isEditing ? 'Done Editing' : 'Manual Edit'}</span>
@@ -230,7 +230,7 @@ export function BookScannerModal({ isOpen, onClose, onApply }: BookScannerModalP
             <button
               type="button"
               onClick={handleConfirm}
-              className="w-full py-2.5 bg-brand-blue hover:bg-blue-600 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1.5 shadow-soft"
+              className="w-full py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition flex items-center justify-center space-x-1.5 shadow-emerald"
             >
               <Check className="w-4 h-4" />
               <span>Apply Details to My Listing</span>

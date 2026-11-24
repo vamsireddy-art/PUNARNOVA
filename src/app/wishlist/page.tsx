@@ -33,7 +33,7 @@ export default function WishlistPage() {
           </p>
           <Link
             href="/buy"
-            className="px-5 py-2.5 bg-brand-blue text-white rounded-xl text-xs font-semibold hover:bg-blue-600 transition inline-flex items-center space-x-1.5"
+            className="px-6 py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl text-xs font-black transition inline-flex items-center space-x-1.5 shadow-emerald"
           >
             <span>Browse Products</span>
             <ArrowRight className="w-4 h-4" />

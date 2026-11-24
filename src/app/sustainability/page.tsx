@@ -86,86 +86,84 @@ export default function SustainabilityDashboardPage() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="bg-gradient-to-br from-emerald-950 via-navy-950 to-slate-900 text-white rounded-3xl p-8 sm:p-12 shadow-elevated border border-emerald-900/50 space-y-4 relative overflow-hidden">
-        <div className="absolute top-0 right-0 w-80 h-80 bg-brand-green/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="inline-flex items-center space-x-1.5 px-3.5 py-1 rounded-full bg-brand-green/20 text-brand-green text-xs font-bold border border-brand-green/30">
+      <div className="bg-slate-900 text-white rounded-xl p-6 sm:p-8 border border-slate-800 space-y-3 shadow-sm">
+        <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">
           <Leaf className="w-3.5 h-3.5" />
-          <span>Campus Circular Economy & Verified Impact Ledger</span>
+          <span>Campus Circular Economy & Verified Impact</span>
         </div>
 
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight">
-          Verified Campus Environmental Ledger
+        <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
+          Campus Environmental Ledger
         </h1>
 
         <p className="text-xs sm:text-sm text-slate-300 max-w-2xl leading-relaxed">
           Every educational textbook, scientific calculator, and drafting kit reused on campus directly displaces raw pulp consumption, water intensive bleaching, and electronics manufacturing.
         </p>
 
-        <div className="flex items-center space-x-2 text-[11px] text-emerald-400 font-semibold pt-2">
-          <CheckCircle2 className="w-4 h-4" />
-          <span>Real-time aggregation strictly derived from completed campus handovers & verified peer swaps.</span>
+        <div className="flex items-center space-x-2 text-[11px] text-emerald-400 font-medium pt-1">
+          <CheckCircle2 className="w-3.5 h-3.5" />
+          <span>Real-time metrics strictly derived from completed campus handovers & verified peer swaps.</span>
         </div>
       </div>
 
       {/* Primary 4 Dynamic Impact Metrics */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
-            <Repeat className="w-5 h-5" />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Products Reused</span>
+            <Repeat className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-3xl font-black text-navy-900">{totalItemsReused}</p>
-          <h3 className="text-xs font-bold text-slate-700">Educational Products Reused</h3>
-          <p className="text-[11px] text-emerald-600 font-semibold">
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalItemsReused}</p>
+          <p className="text-[11px] text-slate-500">
             {verifiedTransactionsCount} verified handovers completed
           </p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="w-10 h-10 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
-            <DollarSign className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Direct Student Savings</span>
+            <DollarSign className="w-4 h-4 text-blue-600" />
           </div>
-          <p className="text-3xl font-black text-navy-900">₹{totalMoneySavedInr.toLocaleString('en-IN')}</p>
-          <h3 className="text-xs font-bold text-slate-700">Direct Student Financial Savings</h3>
-          <p className="text-[11px] text-blue-600 font-semibold">Compared to new retail bookstore costs</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">₹{totalMoneySavedInr.toLocaleString('en-IN')}</p>
+          <p className="text-[11px] text-slate-500">Compared to new retail bookstore costs</p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="w-10 h-10 rounded-2xl bg-green-50 text-green-600 flex items-center justify-center">
-            <Leaf className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Embodied CO₂ Avoided</span>
+            <Leaf className="w-4 h-4 text-emerald-600" />
           </div>
-          <p className="text-3xl font-black text-navy-900">{totalCo2AvoidedKg} kg</p>
-          <h3 className="text-xs font-bold text-slate-700">Embodied CO₂ Avoided</h3>
-          <p className="text-[11px] text-green-600 font-semibold">1.54 kg CO₂ per kg paper avoided</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalCo2AvoidedKg} <span className="text-sm font-normal text-slate-400">kg</span></p>
+          <p className="text-[11px] text-slate-500">1.54 kg CO₂ per kg paper avoided</p>
         </div>
 
-        <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-2">
-          <div className="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
-            <Droplet className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-xs space-y-1.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-medium text-slate-500">Water Conserved</span>
+            <Droplet className="w-4 h-4 text-sky-600" />
           </div>
-          <p className="text-3xl font-black text-navy-900">{totalWaterSavedLiters} L</p>
-          <h3 className="text-xs font-bold text-slate-700">Industrial Processing Water Saved</h3>
-          <p className="text-[11px] text-cyan-600 font-semibold">26 L per kg virgin paper avoided</p>
+          <p className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">{totalWaterSavedLiters} <span className="text-sm font-normal text-slate-400">L</span></p>
+          <p className="text-[11px] text-slate-500">26 L per kg virgin paper avoided</p>
         </div>
       </div>
 
       {/* Campus Sustainability Leaderboard */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div className="flex items-center space-x-2 text-navy-900">
-            <Medal className="w-6 h-6 text-brand-blue" />
-            <h2 className="text-lg sm:text-xl font-extrabold">Campus Sustainability Leaderboard</h2>
+      <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-slate-100">
+          <div className="flex items-center space-x-2 text-slate-900">
+            <Medal className="w-5 h-5 text-blue-600" />
+            <h2 className="text-base sm:text-lg font-bold">Campus Sustainability Leaderboard</h2>
           </div>
-          <span className="text-xs text-slate-500">Ranked by total reuse volume and verified barters</span>
+          <span className="text-xs text-slate-500">Ranked by verified reuse volume and completed swaps</span>
         </div>
 
         <div className="divide-y divide-slate-100 text-xs">
           {campusRankings.map((entry, idx) => (
-            <div key={entry.institution.id} className="py-4 flex items-center justify-between">
+            <div key={entry.institution.id} className="py-3.5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <span className={`w-7 h-7 rounded-xl flex items-center justify-center font-black text-xs ${
+                <span className={`w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs ${
                   idx === 0
                     ? 'bg-amber-100 text-amber-800'
                     : idx === 1
@@ -177,7 +175,7 @@ export default function SustainabilityDashboardPage() {
                   #{idx + 1}
                 </span>
                 <div>
-                  <h3 className="font-bold text-navy-900 text-sm">{entry.institution.name}</h3>
+                  <h3 className="font-semibold text-slate-900 text-sm">{entry.institution.name}</h3>
                   <p className="text-[11px] text-slate-400">
                     {entry.institution.city}, {entry.institution.state} • Domain: {entry.institution.emailDomain || 'verified'}
                   </p>
@@ -185,9 +183,9 @@ export default function SustainabilityDashboardPage() {
               </div>
 
               <div className="text-right space-y-0.5">
-                <span className="font-extrabold text-navy-900 text-sm block">{entry.points} Green Points</span>
-                <span className="text-[11px] text-emerald-600 font-semibold block">
-                  {entry.itemsReused} items reused • {entry.co2SavedKg} kg CO₂ avoided
+                <span className="font-bold text-slate-900 text-sm block">{entry.points} Green Points</span>
+                <span className="text-[11px] text-emerald-700 font-medium block">
+                  {entry.itemsReused} items • {entry.co2SavedKg} kg CO₂ saved
                 </span>
               </div>
             </div>

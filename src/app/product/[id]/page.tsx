@@ -115,15 +115,15 @@ export default function ProductDetailPage() {
         {/* Left Column: Image Gallery */}
         <div className="space-y-4">
           {/* Main Large Image */}
-          <div className="relative aspect-[4/3] bg-slate-100 rounded-3xl overflow-hidden border border-slate-200 shadow-sm">
+          <div className="relative aspect-[4/3] bg-slate-50 rounded-xl overflow-hidden border border-slate-200 shadow-xs">
             <img
               src={product.images[activeImageIndex] || product.images[0]}
               alt={product.title}
               className="w-full h-full object-cover"
             />
             {product.status === 'sold' && (
-              <div className="absolute inset-0 bg-navy-950/75 backdrop-blur-xs flex items-center justify-center">
-                <span className="px-5 py-2.5 bg-rose-600 text-white font-extrabold text-sm rounded-2xl shadow-elevated">
+              <div className="absolute inset-0 bg-slate-950/75 backdrop-blur-xs flex items-center justify-center">
+                <span className="px-4 py-2 bg-rose-600 text-white font-bold text-xs rounded-lg shadow-sm">
                   SOLD TO CAMPUS PEER
                 </span>
               </div>
@@ -132,13 +132,13 @@ export default function ProductDetailPage() {
 
           {/* Thumbnails Row */}
           {product.images.length > 1 && (
-            <div className="flex items-center space-x-3 overflow-x-auto pb-2">
+            <div className="flex items-center space-x-2.5 overflow-x-auto pb-1">
               {product.images.map((img, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className={`w-20 h-20 rounded-2xl overflow-hidden border-2 shrink-0 transition ${
-                    activeImageIndex === idx ? 'border-brand-blue ring-2 ring-brand-blue/30' : 'border-slate-200 opacity-70 hover:opacity-100'
+                  className={`w-16 h-16 rounded-lg overflow-hidden border-2 shrink-0 transition ${
+                    activeImageIndex === idx ? 'border-slate-900 ring-1 ring-slate-900/30' : 'border-slate-200 opacity-70 hover:opacity-100'
                   }`}
                 >
                   <img src={img} alt={`Angle ${idx + 1}`} className="w-full h-full object-cover" />
@@ -147,32 +147,32 @@ export default function ProductDetailPage() {
             </div>
           )}
 
-          {/* AI Deal Score & Valuation Card */}
-          <div className="p-5 bg-gradient-to-br from-blue-50/70 via-indigo-50/40 to-slate-50 border border-blue-200/80 rounded-3xl text-xs space-y-3">
+          {/* Valuation Benchmark Card */}
+          <div className="p-4 bg-white border border-slate-200 rounded-xl text-xs space-y-2.5 shadow-xs">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 text-brand-blue font-extrabold">
-                <Zap className="w-4 h-4 text-brand-green fill-current" />
-                <span>AI Deal Score: {dealScore.scoreOutOf100}/100 ({dealScore.grade})</span>
+              <div className="flex items-center space-x-1.5 text-slate-900 font-semibold">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>Fair Valuation Index: {dealScore.scoreOutOf100}/100 ({dealScore.grade})</span>
               </div>
-              <span className="px-2.5 py-1 rounded-full text-[10px] font-extrabold bg-brand-blue text-white">
+              <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
                 {dealScore.percentageBelowMedian}% Below Campus Median
               </span>
             </div>
             <p className="text-slate-600 leading-relaxed text-[11px]">
               {dealScore.assessmentNote}
             </p>
-            <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-blue-100">
+            <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2 border-t border-slate-100">
               <span>Category Median: ₹{dealScore.categoryMedianPrice}</span>
-              <span>Condition Diagnosed: {product.condition}</span>
+              <span>Condition: {product.condition}</span>
             </div>
           </div>
         </div>
 
         {/* Right Column: Product Info & Actions */}
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Category & Status */}
           <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-brand-blue border border-blue-100">
+            <span className="px-2.5 py-0.5 rounded-md text-xs font-medium bg-slate-100 text-slate-700 border border-slate-200">
               {product.categoryName}
             </span>
             <span className="text-xs text-slate-500 flex items-center">
@@ -182,116 +182,116 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Title */}
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-900 leading-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-900 leading-snug">
             {product.title}
           </h1>
 
           {/* Price Breakdown Card */}
-          <div className="p-5 bg-slate-50 border border-slate-200 rounded-3xl space-y-3">
-            <div className="flex items-baseline space-x-3">
-              <span className="text-3xl font-black text-navy-900">
+          <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+            <div className="flex items-baseline space-x-2.5">
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
                 ₹{product.sellingPrice.toLocaleString('en-IN')}
               </span>
               {product.originalPrice > product.sellingPrice && (
                 <>
-                  <span className="text-sm text-slate-400 line-through">
+                  <span className="text-xs text-slate-400 line-through">
                     ₹{product.originalPrice.toLocaleString('en-IN')}
                   </span>
-                  <span className="bg-rose-100 text-rose-700 font-extrabold text-xs px-2.5 py-0.5 rounded-full">
+                  <span className="bg-emerald-50 text-emerald-700 font-semibold text-[11px] px-2 py-0.5 rounded border border-emerald-200/60">
                     {discountPercent}% SAVINGS
                   </span>
                 </>
               )}
             </div>
 
-            <p className="text-xs text-emerald-700 font-semibold flex items-center">
-              <Tag className="w-3.5 h-3.5 mr-1" />
-              You save ₹{(product.originalPrice - product.sellingPrice).toLocaleString('en-IN')} compared to original purchase price
+            <p className="text-xs text-emerald-700 font-medium flex items-center">
+              <Tag className="w-3.5 h-3.5 mr-1 text-emerald-600" />
+              Saves ₹{(product.originalPrice - product.sellingPrice).toLocaleString('en-IN')} versus publisher retail price
             </p>
           </div>
 
           {/* Academic Specifications Table */}
-          <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-              <span className="text-slate-400 block text-[10px] font-bold uppercase">Condition</span>
-              <span className="font-bold text-navy-900">{product.condition}</span>
+          <div className="grid grid-cols-2 gap-2.5 text-xs">
+            <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+              <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Condition</span>
+              <span className="font-semibold text-slate-900">{product.condition}</span>
             </div>
             {product.edition && (
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-                <span className="text-slate-400 block text-[10px] font-bold uppercase">Edition</span>
-                <span className="font-bold text-navy-900">{product.edition}</span>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Edition</span>
+                <span className="font-semibold text-slate-900">{product.edition}</span>
               </div>
             )}
             {product.author && (
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-                <span className="text-slate-400 block text-[10px] font-bold uppercase">Author(s)</span>
-                <span className="font-bold text-navy-900 line-clamp-1">{product.author}</span>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Author(s)</span>
+                <span className="font-semibold text-slate-900 line-clamp-1">{product.author}</span>
               </div>
             )}
             {product.isbn && (
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-                <span className="text-slate-400 block text-[10px] font-bold uppercase">ISBN</span>
-                <span className="font-bold text-navy-900 font-mono text-[11px]">{product.isbn}</span>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">ISBN</span>
+                <span className="font-semibold text-slate-900 font-mono text-[11px]">{product.isbn}</span>
               </div>
             )}
             {product.subject && (
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-                <span className="text-slate-400 block text-[10px] font-bold uppercase">Subject / Course</span>
-                <span className="font-bold text-navy-900">{product.subject}</span>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Subject</span>
+                <span className="font-semibold text-slate-900">{product.subject}</span>
               </div>
             )}
             {product.semester && (
-              <div className="p-3 bg-white border border-slate-200 rounded-2xl">
-                <span className="text-slate-400 block text-[10px] font-bold uppercase">Semester</span>
-                <span className="font-bold text-navy-900">{product.semester}</span>
+              <div className="p-2.5 bg-white border border-slate-200 rounded-lg">
+                <span className="text-slate-400 block text-[10px] font-medium uppercase tracking-wider">Semester</span>
+                <span className="font-semibold text-slate-900">{product.semester}</span>
               </div>
             )}
           </div>
 
           {/* Official Campus Safe Handover Spot */}
           {safeSpot && (
-            <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-1.5">
-              <div className="flex items-center space-x-2 text-emerald-900 font-bold text-xs">
-                <ShieldCheck className="w-4 h-4 text-brand-green" />
-                <span>Recommended Campus Handover Zone: {safeSpot.name}</span>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1">
+              <div className="flex items-center space-x-1.5 text-slate-900 font-semibold text-xs">
+                <ShieldCheck className="w-4 h-4 text-emerald-600" />
+                <span>Verified Campus Handover Zone: {safeSpot.name}</span>
               </div>
-              <p className="text-[11px] text-emerald-700">
-                Landmark: {safeSpot.landmark} • Staffed Hours: {safeSpot.timing}. Safe peer handovers protect student privacy.
+              <p className="text-[11px] text-slate-600">
+                Landmark: {safeSpot.landmark} • Staffed Hours: {safeSpot.timing}. Safe peer handovers protect student security.
               </p>
             </div>
           )}
 
           {/* Description */}
           <div>
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2">Description</h3>
-            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-white p-4 rounded-2xl border border-slate-200">
+            <h3 className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">Description</h3>
+            <p className="text-xs sm:text-sm text-slate-600 leading-relaxed whitespace-pre-line bg-white p-3.5 rounded-lg border border-slate-200">
               {product.description}
             </p>
           </div>
 
           {/* Smart Swap Wanted Note */}
           {product.isExchangeAvailable && (
-            <div className="p-4 bg-indigo-50 border border-indigo-200 rounded-2xl space-y-2">
-              <div className="flex items-center space-x-2 text-indigo-900 font-bold text-xs">
-                <Repeat className="w-4 h-4 text-indigo-600" />
-                <span>Seller Wants to Swap with:</span>
+            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-lg space-y-1.5">
+              <div className="flex items-center space-x-1.5 text-slate-900 font-semibold text-xs">
+                <Repeat className="w-4 h-4 text-slate-600" />
+                <span>Seller is Open to Swapping with:</span>
               </div>
-              <p className="text-xs text-indigo-800">
+              <p className="text-xs text-slate-700">
                 {product.exchangeWantedNotes || 'Open to relevant course materials or previous semester textbooks.'}
               </p>
               <Link
                 href={`/exchange?target=${product.id}`}
-                className="inline-flex items-center space-x-1.5 text-xs font-bold text-indigo-700 hover:text-indigo-900 hover:underline pt-1"
+                className="inline-flex items-center space-x-1 text-xs font-medium text-blue-600 hover:text-blue-700 hover:underline pt-0.5"
               >
-                <span>Propose an Exchange with Your Items →</span>
+                <span>Propose an Exchange with Your Materials →</span>
               </Link>
             </div>
           )}
 
           {/* Seller Profile Card */}
-          <div className="p-4 bg-white border border-slate-200 rounded-3xl flex items-center justify-between">
+          <div className="p-3.5 bg-white border border-slate-200 rounded-xl flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 rounded-2xl bg-slate-100 overflow-hidden shrink-0">
+              <div className="w-10 h-10 rounded-full bg-slate-100 overflow-hidden shrink-0 border border-slate-200">
                 <img
                   src={product.sellerAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop&q=80'}
                   alt={product.sellerName}
@@ -300,15 +300,15 @@ export default function ProductDetailPage() {
               </div>
               <div>
                 <div className="flex items-center space-x-1.5">
-                  <span className="font-bold text-navy-900 text-sm">{product.sellerName}</span>
+                  <span className="font-semibold text-slate-900 text-sm">{product.sellerName}</span>
                   {product.sellerVerificationStatus === 'verified' && (
-                    <span className="inline-flex items-center text-brand-green text-[10px] font-semibold bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                      <ShieldCheck className="w-3 h-3 mr-0.5" /> Verified Student
+                    <span className="inline-flex items-center text-emerald-700 text-[10px] font-medium bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-100">
+                      <CheckCircle2 className="w-3 h-3 mr-0.5 text-emerald-600" /> Verified
                     </span>
                   )}
                 </div>
                 <p className="text-[11px] text-slate-500 mt-0.5 flex items-center">
-                  <MapPin className="w-3 h-3 mr-1 text-brand-blue" />
+                  <MapPin className="w-3 h-3 mr-1 text-slate-400" />
                   {product.institutionName}
                 </p>
               </div>
@@ -316,23 +316,23 @@ export default function ProductDetailPage() {
 
             <button
               onClick={() => setIsChatOpen(true)}
-              className="px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-navy-900 rounded-xl text-xs font-semibold flex items-center space-x-1.5 transition"
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-xs font-medium flex items-center space-x-1.5 transition-colors"
             >
-              <MessageSquare className="w-4 h-4 text-brand-blue" />
-              <span>Chat / Offer</span>
+              <MessageSquare className="w-3.5 h-3.5 text-slate-600" />
+              <span>Message Seller</span>
             </button>
           </div>
 
           {/* PRIMARY PURCHASE ACTIONS */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
             <button
               onClick={handleAddToCart}
               disabled={product.status === 'sold'}
-              className="py-3.5 px-4 bg-white hover:bg-slate-50 text-navy-900 border-2 border-slate-300 hover:border-brand-blue font-bold rounded-2xl text-xs sm:text-sm flex items-center justify-center space-x-2 transition disabled:opacity-50"
+              className="py-3 px-4 bg-white hover:bg-slate-50 text-slate-900 border border-slate-300 font-semibold rounded-lg text-xs sm:text-sm flex items-center justify-center space-x-2 transition-colors disabled:opacity-50"
             >
               {addedAnimation ? (
                 <>
-                  <Check className="w-4 h-4 text-brand-green" />
+                  <Check className="w-4 h-4 text-emerald-600" />
                   <span>Added to Cart!</span>
                 </>
               ) : (
@@ -346,10 +346,9 @@ export default function ProductDetailPage() {
             <button
               onClick={handleBuyNow}
               disabled={product.status === 'sold'}
-              className="py-3.5 px-4 bg-brand-blue hover:bg-blue-600 text-white font-bold rounded-2xl text-xs sm:text-sm flex items-center justify-center space-x-2 transition shadow-soft disabled:opacity-50"
+              className="py-3 px-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg text-xs sm:text-sm flex items-center justify-center space-x-2 transition-colors shadow-xs disabled:opacity-50"
             >
-              <Zap className="w-4 h-4 fill-current" />
-              <span>Buy Now (Campus Handover)</span>
+              <span>Instant Checkout</span>
             </button>
           </div>
         </div>

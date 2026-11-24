@@ -135,75 +135,75 @@ export default function ExchangeMarketplacePage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-10">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
       {/* Header Banner */}
-      <div className="bg-gradient-to-r from-navy-950 via-slate-900 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 shadow-elevated border border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6 relative overflow-hidden">
-        <div className="space-y-3 max-w-xl relative z-10">
-          <div className="inline-flex items-center space-x-1.5 px-3 py-1 rounded-full bg-brand-green/20 text-brand-green text-xs font-bold border border-brand-green/30">
+      <div className="bg-slate-900 text-white rounded-xl p-6 sm:p-8 border border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+        <div className="space-y-2.5 max-w-xl">
+          <div className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-md bg-emerald-500/10 text-emerald-400 text-xs font-medium border border-emerald-500/20">
             <Repeat className="w-3.5 h-3.5" />
-            <span>Campus Barter & Swaps</span>
+            <span>Campus Barter System</span>
           </div>
-          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight">
-            Smart Educational Barter & Book Swaps
+          <h1 className="text-xl sm:text-3xl font-bold tracking-tight text-white">
+            Peer Textbook & Material Swaps
           </h1>
           <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Need a course reference for next semester? Swap with peers on your campus for <strong>₹0 cash exchange</strong>. Save money and keep educational materials circulating freely.
+            Need a course reference for next semester? Swap with peers on your campus for <strong>₹0 cash exchange</strong>. Save money and keep educational resources circulating.
           </p>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 p-5 rounded-2xl text-xs space-y-2.5 shrink-0 max-w-xs relative z-10">
-          <p className="font-bold text-white flex items-center">
-            <Sparkles className="w-4 h-4 mr-1.5 text-brand-green" />
-            Zero-Cash Student Barter Rules:
+        <div className="bg-slate-800/90 border border-slate-700 p-4 rounded-lg text-xs space-y-2 shrink-0 max-w-xs">
+          <p className="font-semibold text-white flex items-center">
+            <Sparkles className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+            Student Barter Protocol
           </p>
-          <ul className="space-y-1 text-slate-200 text-[11px] list-disc pl-4">
-            <li>Find an item marked "Open for Swap"</li>
-            <li>Offer your previous semester textbook</li>
+          <ul className="space-y-1 text-slate-300 text-[11px] list-disc pl-4">
+            <li>Select an item marked "Open for Swap"</li>
+            <li>Offer your previous semester material</li>
             <li>Meet at official Campus Safe Handover spots</li>
-            <li>Both students earn Green Impact badges</li>
+            <li>Both students earn sustainability points</li>
           </ul>
         </div>
       </div>
 
-      {/* AI Smart Swap Recommendations */}
+      {/* Smart Swap Recommendations */}
       {smartMatches.length > 0 && (
-        <section className="p-6 bg-gradient-to-br from-indigo-50/70 via-blue-50/40 to-slate-50 border border-indigo-200/80 rounded-3xl space-y-4 shadow-sm">
-          <div className="flex items-center space-x-2 text-indigo-950 font-extrabold text-base">
-            <Zap className="w-5 h-5 text-indigo-600 fill-current" />
-            <h2>AI Smart Swap Matchmaker (Complementary Student Pairings)</h2>
+        <section className="p-5 bg-white border border-slate-200 rounded-xl space-y-4 shadow-xs">
+          <div className="flex items-center space-x-2 text-slate-900 font-bold text-sm">
+            <Zap className="w-4 h-4 text-blue-600" />
+            <h2>Recommended Peer Exchange Pairings</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {smartMatches.map((pair, idx) => (
-              <div key={idx} className="p-4 bg-white rounded-2xl border border-indigo-100 shadow-sm space-y-3">
-                <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-100">
-                  <span className="font-bold text-indigo-900">{pair.reason}</span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-indigo-100 text-indigo-800">
+              <div key={idx} className="p-4 bg-slate-50/70 rounded-lg border border-slate-200 shadow-xs space-y-3">
+                <div className="flex items-center justify-between text-xs pb-2 border-b border-slate-200">
+                  <span className="font-medium text-slate-800">{pair.reason}</span>
+                  <span className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-100 text-blue-800">
                     {pair.matchScore}% Match
                   </span>
                 </div>
 
                 <div className="flex items-center justify-between gap-3 text-xs">
-                  <div className="flex-1 p-2.5 bg-slate-50 rounded-xl">
-                    <span className="text-[10px] text-slate-400 block font-semibold">{pair.itemA.sellerName} has:</span>
-                    <p className="font-bold text-navy-900 line-clamp-1">{pair.itemA.title}</p>
-                    <span className="text-[10px] text-brand-blue">{pair.itemA.institutionName.split(' ')[0]}</span>
+                  <div className="flex-1 p-2.5 bg-white rounded-md border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block font-medium">{pair.itemA.sellerName} has:</span>
+                    <p className="font-semibold text-slate-900 line-clamp-1">{pair.itemA.title}</p>
+                    <span className="text-[10px] text-slate-500">{pair.itemA.institutionName.split(' ')[0]}</span>
                   </div>
 
-                  <ArrowRightLeft className="w-5 h-5 text-indigo-500 shrink-0" />
+                  <ArrowRightLeft className="w-4 h-4 text-slate-400 shrink-0" />
 
-                  <div className="flex-1 p-2.5 bg-indigo-50/60 rounded-xl border border-indigo-100">
-                    <span className="text-[10px] text-indigo-500 block font-semibold">{pair.itemB.sellerName} has:</span>
-                    <p className="font-bold text-navy-900 line-clamp-1">{pair.itemB.title}</p>
-                    <span className="text-[10px] text-brand-blue">{pair.itemB.institutionName.split(' ')[0]}</span>
+                  <div className="flex-1 p-2.5 bg-white rounded-md border border-slate-200">
+                    <span className="text-[10px] text-slate-400 block font-medium">{pair.itemB.sellerName} has:</span>
+                    <p className="font-semibold text-slate-900 line-clamp-1">{pair.itemB.title}</p>
+                    <span className="text-[10px] text-slate-500">{pair.itemB.institutionName.split(' ')[0]}</span>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setSelectedTargetProduct(pair.itemB)}
-                  className="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition flex items-center justify-center space-x-1"
+                  className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-lg text-xs font-medium transition-colors flex items-center justify-center space-x-1"
                 >
-                  <span>Initiate This Barter Offer</span>
+                  <span>Propose Exchange</span>
                 </button>
               </div>
             ))}

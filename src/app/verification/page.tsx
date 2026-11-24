@@ -95,35 +95,35 @@ export default function VerificationCenterPage() {
   const StatusIcon = currentStatusConfig.icon;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
       {/* Page Header */}
       <div>
-        <div className="flex items-center space-x-2 text-xs font-semibold text-brand-blue uppercase tracking-wider mb-1">
-          <ShieldCheck className="w-4 h-4 text-brand-green" />
-          <span>Trust & Identity Management</span>
+        <div className="flex items-center space-x-2 text-xs font-medium text-emerald-600 uppercase tracking-wide mb-1">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Institutional Verification</span>
         </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
-          Student Seller Verification Center
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+          Student Seller Verification
         </h1>
-        <p className="text-xs sm:text-sm text-slate-500 mt-1">
-          Only verified student accounts can publish product listings to keep campus transactions safe.
+        <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
+          Verified student accounts protect peers and ensure physical campus transactions remain trusted.
         </p>
       </div>
 
       {/* Current Status Card */}
-      <div className={`p-6 rounded-3xl border ${currentStatusConfig.color} shadow-sm space-y-4`}>
+      <div className={`p-5 rounded-xl border ${currentStatusConfig.color} shadow-xs space-y-3`}>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 rounded-2xl bg-white/80 flex items-center justify-center shrink-0">
-              <StatusIcon className="w-6 h-6 text-current" />
+            <div className="w-10 h-10 rounded-lg bg-white/90 flex items-center justify-center shrink-0 border border-current/20">
+              <StatusIcon className="w-5 h-5 text-current" />
             </div>
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider block opacity-70">
-                Your Seller Verification Status
+              <span className="text-[10px] font-semibold uppercase tracking-wider block opacity-75">
+                Current Verification Status
               </span>
-              <h2 className="text-xl font-bold">{currentStatusConfig.label}</h2>
+              <h2 className="text-lg font-bold">{currentStatusConfig.label}</h2>
               <p className="text-xs opacity-80 mt-0.5">
-                Account: {currentUser.fullName} ({currentUser.institutionName || 'Aditya University'})
+                {currentUser.fullName} • {currentUser.institutionName || 'Aditya University'}
               </p>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function VerificationCenterPage() {
           {effectiveVerificationStatus !== 'verified' && (
             <button
               onClick={() => setShowModal(true)}
-              className="px-5 py-2.5 bg-brand-blue hover:bg-blue-600 text-white font-bold text-xs rounded-xl transition shadow-soft shrink-0"
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs rounded-lg transition-colors shadow-xs shrink-0"
             >
               {effectiveVerificationStatus === 'pending' ? 'Update Documents' : 'Submit Student ID'}
             </button>
@@ -140,81 +140,81 @@ export default function VerificationCenterPage() {
       </div>
 
       {/* Official Safe Handover Spots on Your Campus */}
-      <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm space-y-4">
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2 text-navy-900">
-            <ShieldCheck className="w-5 h-5 text-brand-green" />
-            <h3 className="font-extrabold text-base">Campus Safe Handover Zones</h3>
+          <div className="flex items-center space-x-2 text-slate-900">
+            <ShieldCheck className="w-4 h-4 text-emerald-600" />
+            <h3 className="font-bold text-sm">Designated Safe Handover Zones</h3>
           </div>
-          <span className="text-[11px] font-bold text-brand-blue bg-blue-50 px-2.5 py-1 rounded-full border border-blue-100">
+          <span className="text-[11px] font-medium text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
             {currentUser.institutionName || 'Aditya University'}
           </span>
         </div>
         <p className="text-xs text-slate-500">
-          To ensure personal safety, never meet in unstaffed or secluded areas. PunarNova handovers and swaps are designated at these monitored campus locations:
+          To ensure personal safety, meet only at institution-monitored locations. Handover arrangements are officially designated at:
         </p>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-            <span className="font-bold text-navy-900 block">Central Campus Library Foyer</span>
-            <span className="text-[11px] text-slate-500 block">Ground floor reading hall turnstiles • 9:00 AM - 7:00 PM</span>
-            <span className="text-[10px] text-brand-green font-bold">Staffed & Monitored Zone</span>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <span className="font-semibold text-slate-900 block">Central Campus Library Foyer</span>
+            <span className="text-[11px] text-slate-500 block">Ground floor turnstiles • 9:00 AM - 7:00 PM</span>
+            <span className="text-[10px] text-emerald-700 font-medium">Staffed Zone</span>
           </div>
 
-          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-            <span className="font-bold text-navy-900 block">Student Activity Center (SAC)</span>
-            <span className="text-[11px] text-slate-500 block">Indoor complex reception lobby • 10:00 AM - 8:00 PM</span>
-            <span className="text-[10px] text-brand-green font-bold">Staffed & Monitored Zone</span>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <span className="font-semibold text-slate-900 block">Student Activity Center (SAC)</span>
+            <span className="text-[11px] text-slate-500 block">Lobby reception • 10:00 AM - 8:00 PM</span>
+            <span className="text-[10px] text-emerald-700 font-medium">Staffed Zone</span>
           </div>
 
-          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-            <span className="font-bold text-navy-900 block">Main Campus Security Gate #1</span>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <span className="font-semibold text-slate-900 block">Main Campus Security Gate #1</span>
             <span className="text-[11px] text-slate-500 block">Visitor registration desk • 24 Hours staffed</span>
-            <span className="text-[10px] text-brand-green font-bold">24-Hour Security Post</span>
+            <span className="text-[10px] text-emerald-700 font-medium">24-Hour Security Post</span>
           </div>
 
-          <div className="p-3.5 bg-slate-50 rounded-2xl border border-slate-100 space-y-1">
-            <span className="font-bold text-navy-900 block">Cotton Bhavan Food Court</span>
-            <span className="text-[11px] text-slate-500 block">Outdoor seating canopy • 8:00 AM - 9:30 PM</span>
-            <span className="text-[10px] text-brand-blue font-bold">Public Student Area</span>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <span className="font-semibold text-slate-900 block">Cotton Bhavan Cafeteria Canopy</span>
+            <span className="text-[11px] text-slate-500 block">Outdoor common area • 8:00 AM - 9:30 PM</span>
+            <span className="text-[10px] text-blue-700 font-medium">Monitored Public Area</span>
           </div>
         </div>
       </div>
 
       {/* Verification Protocol & Privacy Shield */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-        <h3 className="font-bold text-navy-900 text-base flex items-center">
-          <Lock className="w-4 h-4 mr-2 text-brand-green" />
-          Indian Data Protection (DPDP) & Safeguards
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-3">
+        <h3 className="font-bold text-slate-900 text-sm flex items-center">
+          <Lock className="w-4 h-4 mr-2 text-emerald-600" />
+          Data Protection & Privacy Safeguards
         </h3>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
-          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-            <p className="font-bold text-navy-900">Encrypted Storage</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs text-slate-600">
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <p className="font-semibold text-slate-900">Restricted Storage</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Student ID cards are tokenized and stored in restricted encrypted storage.
+              Student ID documents are restricted and only accessible to verified administrators for identity checks.
             </p>
           </div>
 
-          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-            <p className="font-bold text-navy-900">Zero Public Exposure</p>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <p className="font-semibold text-slate-900">Zero Public Exposure</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Your identity cards are never shown to buyers, other sellers, or visible in search.
+              Personal roll numbers and document scans are never displayed publicly on listings or shared with peers.
             </p>
           </div>
 
-          <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 space-y-1">
-            <p className="font-bold text-navy-900">Fuzzy Name Reconciliation</p>
+          <div className="p-3 bg-slate-50 rounded-lg border border-slate-200/80 space-y-1">
+            <p className="font-semibold text-slate-900">Institutional Email OTP</p>
             <p className="text-[11px] text-slate-500 leading-relaxed">
-              Spelling or initials variance between account name and ID trigger manual review, not rejection.
+              Official college email domains are authenticated to guarantee student enrollment validity.
             </p>
           </div>
         </div>
       </div>
 
       {/* Verification History / Submissions */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
-        <h3 className="font-bold text-navy-900 text-base">Submission History</h3>
+      <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-xs space-y-4">
+        <h3 className="font-bold text-slate-900 text-sm">Submission History</h3>
         {myRequests.length === 0 ? (
           <p className="text-xs text-slate-400 py-4 text-center">No verification documents submitted yet.</p>
         ) : (

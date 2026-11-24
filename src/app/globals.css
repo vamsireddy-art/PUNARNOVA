@@ -11,56 +11,29 @@ body {
   color: var(--foreground);
   background: var(--background);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", "Helvetica Neue", Arial, sans-serif;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Glassmorphism surfaces */
-.glass-panel {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(226, 232, 240, 0.8);
-}
-
-.glass-panel-dark {
-  background: rgba(11, 19, 43, 0.85);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* Subtle modern card styling */
+/* Professional card and surface styles */
 .card-clean {
   background: #ffffff;
-  border: 1px solid rgba(226, 232, 240, 0.85);
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.03), 0 1px 2px -1px rgba(0, 0, 0, 0.02);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.04);
+  transition: all 0.15s ease-in-out;
 }
 
 .card-clean:hover {
   border-color: #cbd5e1;
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.03);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08);
   transform: translateY(-1px);
-}
-
-/* Modern gradient text */
-.gradient-text-brand {
-  background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 50%, #4f46e5 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-.gradient-text-cosmic {
-  background: linear-gradient(135deg, #ffffff 30%, #38bdf8 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
 }
 
 /* Custom scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

@@ -106,16 +106,17 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 shadow-soft">
-      {/* Top Banner: Campus & Fast Switcher */}
-      <div className="bg-navy-950 text-slate-300 text-xs py-1.5 px-4 border-b border-navy-800/80">
+      {/* Top Banner: Campus & Trust Status */}
+      <div className="bg-slate-950 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-sky-500/10 text-sky-400 font-medium text-[11px] border border-sky-500/20">
-              <Sparkles className="w-3 h-3 mr-1 text-sky-400" /> PunarNova — Discover • Reuse • Grow
+          <div className="flex items-center space-x-2 text-[11px]">
+            <span className="inline-flex items-center text-slate-300 font-medium">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mr-2" />
+              PunarNova Campus Network
             </span>
-            <span className="hidden sm:inline text-slate-600">|</span>
-            <span className="hidden sm:inline text-slate-400 text-[11px]">
-              0% Commission • Campus Handover Safe
+            <span className="hidden sm:inline text-slate-600">/</span>
+            <span className="hidden sm:inline text-slate-400">
+              0% Commission • Verified Handover Points
             </span>
           </div>
 
@@ -123,17 +124,18 @@ export function Navbar() {
           <div className="flex items-center space-x-3 text-[11px]">
             {currentUser ? (
               <span className="text-slate-300">
-                Logged in as <strong className="text-white">{currentUser.fullName}</strong>
+                <span className="text-slate-400">Signed in as </span>
+                <strong className="text-white font-medium">{currentUser.fullName}</strong>
                 {currentUser.role === 'admin' ? (
-                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold">Admin</span>
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-medium">Admin</span>
                 ) : currentUser.verificationStatus === 'verified' ? (
-                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">Verified Student</span>
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-medium">Verified Student</span>
                 ) : (
-                  <span className="ml-1.5 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">Pending Verification</span>
+                  <span className="ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-medium">Verification Pending</span>
                 )}
               </span>
             ) : (
-              <span className="text-slate-400">Campus Peer-to-Peer Educational Exchange</span>
+              <span className="text-slate-400">Direct Student-to-Student Exchange</span>
             )}
           </div>
         </div>
@@ -448,16 +450,13 @@ export function Navbar() {
               )}
             </div>
 
-            {/* SELL CALL-TO-ACTION (Prominent!) */}
+            {/* Post Listing CTA */}
             <Link
               href="/sell"
-              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-xl bg-brand-blue hover:bg-blue-600 text-white font-medium text-xs sm:text-sm shadow-soft hover:shadow-md transition active:scale-95"
+              className="inline-flex items-center space-x-1.5 px-3.5 py-2 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-medium text-xs sm:text-sm shadow-xs transition-colors"
             >
-              <PlusCircle className="w-4 h-4" />
-              <span>Sell Product</span>
-              <span className="hidden sm:inline bg-blue-700/60 text-[10px] px-1.5 py-0.5 rounded font-mono">
-                AI Price
-              </span>
+              <Plus className="w-4 h-4 stroke-[2]" />
+              <span>List Item</span>
             </Link>
 
             {/* User Profile Avatar / Menu OR Sign In / Sign Up buttons */}

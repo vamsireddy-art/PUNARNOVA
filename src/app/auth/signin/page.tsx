@@ -31,6 +31,38 @@ export default function SignInPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [resetSent, setResetSent] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [isSendingReset, setIsSendingReset] = useState(false);
+  const [resetError, setResetError] = useState('');
+
+  const handleSendResetLink = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetError('');
+    const trimmed = forgotEmail.trim();
+    if (!trimmed || !trimmed.includes('@')) {
+      setResetError('Please enter a valid registered email address.');
+      return;
+    }
+
+    setIsSendingReset(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: trimmed }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setResetSent(true);
+      } else {
+        setResetError(data.error || 'Failed to send password reset email. Please try again.');
+      }
+    } catch {
+      setResetError('Network error while sending reset link. Please check your connection.');
+    } finally {
+      setIsSendingReset(false);
+    }
+  };
 
   const handleSignIn = (e: React.FormEvent) => {
     e.preventDefault();
@@ -201,6 +233,7 @@ export default function SignInPage() {
               onClick={() => {
                 setShowForgotModal(false);
                 setResetSent(false);
+                setResetError('');
               }}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-600"
             >
@@ -210,34 +243,46 @@ export default function SignInPage() {
             <h3 className="font-extrabold text-[#0B1F33] text-base">Reset Account Password</h3>
             {resetSent ? (
               <div className="space-y-3 text-center py-2">
-                <p className="text-[#065F46] font-bold bg-[#ECFDF5] p-3 rounded-xl border border-[#A7F3D0]">
-                  Password reset link has been dispatched to your institutional email.
+                <p className="text-[#065F46] font-bold bg-[#ECFDF5] p-3.5 rounded-xl border border-[#A7F3D0] leading-relaxed">
+                  A password reset link has been sent to <strong>{forgotEmail}</strong>. Please check your inbox and click the link to set a new password.
                 </p>
                 <button
-                  onClick={() => setShowForgotModal(false)}
-                  className="w-full py-2.5 bg-[#0B1F33] text-white rounded-xl font-bold"
+                  onClick={() => {
+                    setShowForgotModal(false);
+                    setResetSent(false);
+                    setForgotEmail('');
+                  }}
+                  className="w-full py-2.5 bg-[#0B1F33] text-white rounded-xl font-bold hover:bg-[#132B45] transition"
                 >
                   Done
                 </button>
               </div>
             ) : (
-              <div className="space-y-3">
+              <form onSubmit={handleSendResetLink} className="space-y-3">
                 <p className="text-[#64748B]">
-                  Enter your registered institutional email or phone number to receive an OTP reset link.
+                  Enter your registered email address to receive a secure password reset link.
                 </p>
+                {resetError && (
+                  <div className="p-2.5 bg-rose-50 border border-rose-200 text-rose-700 rounded-xl text-[11px] font-medium">
+                    {resetError}
+                  </div>
+                )}
                 <input
-                  type="text"
-                  placeholder="Enter email or mobile..."
-                  className="w-full p-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:border-[#10B981]"
+                  type="email"
+                  required
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  placeholder="Enter your registered email..."
+                  className="w-full p-2.5 rounded-xl border border-[#E2E8F0] focus:outline-none focus:ring-2 focus:ring-[#10B981]/30 focus:border-[#10B981] text-[#0F172A]"
                 />
                 <button
-                  type="button"
-                  onClick={() => setResetSent(true)}
-                  className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl font-bold transition shadow-sm"
+                  type="submit"
+                  disabled={isSendingReset}
+                  className="w-full py-2.5 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white rounded-xl font-bold transition shadow-sm disabled:opacity-50"
                 >
-                  Send Reset Link
+                  {isSendingReset ? 'Sending Reset Link...' : 'Send Reset Link'}
                 </button>
-              </div>
+              </form>
             )}
           </div>
         </div>

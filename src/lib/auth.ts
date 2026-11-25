@@ -150,3 +150,31 @@ export function updateUserAccount(updatedUser: User): void {
     localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(accounts));
   }
 }
+
+/**
+ * Reset password for an existing registered account by email.
+ * Returns { success: true } if updated, or { success: false, error } if not found.
+ */
+export function resetAccountPassword(
+  email: string,
+  newPassword: string
+): { success: boolean; error?: string } {
+  if (typeof window === 'undefined') {
+    return { success: false, error: 'Cannot update password outside browser.' };
+  }
+
+  const accounts = getRegisteredAccounts();
+  const cleanEmail = email.trim().toLowerCase();
+  const index = accounts.findIndex((a) => a.user.email.toLowerCase() === cleanEmail);
+
+  if (index < 0) {
+    return {
+      success: false,
+      error: 'No registered account found for this email on this device. Please sign up first.',
+    };
+  }
+
+  accounts[index].password = newPassword.trim();
+  localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(accounts));
+  return { success: true };
+}

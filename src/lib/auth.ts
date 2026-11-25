@@ -152,8 +152,10 @@ export function updateUserAccount(updatedUser: User): void {
 }
 
 /**
- * Reset password for an existing registered account by email.
- * Returns { success: true } if updated, or { success: false, error } if not found.
+ * Reset password for a registered account by email.
+ * If the reset link is opened in a different browser/device where localStorage
+ * doesn't have the account yet, provisions a verified account record so the user
+ * can sign in immediately with their new password.
  */
 export function resetAccountPassword(
   email: string,
@@ -167,14 +169,38 @@ export function resetAccountPassword(
   const cleanEmail = email.trim().toLowerCase();
   const index = accounts.findIndex((a) => a.user.email.toLowerCase() === cleanEmail);
 
-  if (index < 0) {
-    return {
-      success: false,
-      error: 'No registered account found for this email on this device. Please sign up first.',
-    };
+  if (index >= 0) {
+    accounts[index].password = newPassword.trim();
+    localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(accounts));
+    return { success: true };
   }
 
-  accounts[index].password = newPassword.trim();
+  // Provision verified account record on this device/browser after email token verification
+  const nameFromEmail = cleanEmail
+    .split('@')[0]
+    .replace(/[._-]+/g, ' ')
+    .replace(/\b\w/g, (c) => c.toUpperCase());
+
+  const provisionedUser: User = {
+    id: `user-${Date.now()}`,
+    email: cleanEmail,
+    mobileNumber: '',
+    fullName: nameFromEmail || 'Student User',
+    role: 'student',
+    isMobileVerified: false,
+    isEmailVerified: true,
+    verificationStatus: 'not_verified',
+    institutionId: 'inst-custom',
+    institutionName: 'Campus Partner',
+    institutionType: 'University',
+    salesCount: 0,
+    purchasesCount: 0,
+    carbonSavedKg: 0,
+    moneySavedInr: 0,
+    createdAt: new Date().toISOString(),
+  };
+
+  accounts.push({ user: provisionedUser, password: newPassword.trim() });
   localStorage.setItem(REGISTERED_ACCOUNTS_KEY, JSON.stringify(accounts));
   return { success: true };
 }

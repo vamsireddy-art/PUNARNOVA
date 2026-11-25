@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { verifyResetToken, markResetTokenUsed } from '@/lib/resetToken';
+import { saveResetPassword } from '@/lib/passwordResetStore';
 
 export async function POST(request: Request) {
   try {
@@ -35,6 +36,8 @@ export async function POST(request: Request) {
     if (verification.jti) {
       markResetTokenUsed(verification.jti);
     }
+
+    saveResetPassword(verification.email, newPassword);
 
     return NextResponse.json({
       success: true,

@@ -17,7 +17,7 @@ import {
   X
 } from 'lucide-react';
 import { useAppStore } from '@/lib/store';
-import { authenticateUser } from '@/lib/auth';
+import { authenticateUser, resetAccountPassword } from '@/lib/auth';
 
 export default function SignInPage() {
   const router = useRouter();
@@ -64,23 +64,41 @@ export default function SignInPage() {
     }
   };
 
-  const handleSignIn = (e: React.FormEvent) => {
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     setIsSubmitting(true);
 
-    setTimeout(() => {
-      const user = authenticateUser(identifier, password);
-      if (!user) {
-        setErrorMessage('Invalid username/email or password. Only registered users who have created an account can sign in.');
-        setIsSubmitting(false);
-        return;
-      }
+    let user = authenticateUser(identifier, password);
 
-      setCurrentUser(user);
+    // Cross-device password reset sync: if user reset password on another browser/device,
+    // verify against the server reset store and sync into this browser's account store.
+    if (!user && identifier.includes('@')) {
+      try {
+        const res = await fetch('/api/auth/verify-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: identifier.trim(), password }),
+        });
+        const data = await res.json();
+        if (res.ok && data.valid) {
+          resetAccountPassword(identifier.trim(), password);
+          user = authenticateUser(identifier, password);
+        }
+      } catch {
+        // fallback to normal invalid credentials message
+      }
+    }
+
+    if (!user) {
+      setErrorMessage('Invalid username/email or password. Only registered users who have created an account can sign in.');
       setIsSubmitting(false);
-      router.push('/');
-    }, 600);
+      return;
+    }
+
+    setCurrentUser(user);
+    setIsSubmitting(false);
+    router.push('/');
   };
 
   return (

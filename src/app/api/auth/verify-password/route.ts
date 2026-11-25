@@ -11,7 +11,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ valid: false }, { status: 400 });
     }
 
-    const valid = verifyResetPassword(email, password);
+    const valid = await verifyResetPassword(email, password);
     return NextResponse.json({ valid });
   } catch {
     return NextResponse.json({ valid: false }, { status: 500 });

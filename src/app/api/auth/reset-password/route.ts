@@ -37,7 +37,7 @@ export async function POST(request: Request) {
       markResetTokenUsed(verification.jti);
     }
 
-    saveResetPassword(verification.email, newPassword);
+    await saveResetPassword(verification.email, newPassword);
 
     return NextResponse.json({
       success: true,

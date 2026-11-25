@@ -181,7 +181,7 @@ function ResetPasswordContent() {
             </div>
             <button
               type="button"
-              onClick={() => router.push('/auth/signin')}
+              onClick={() => router.push(`/auth/signin?email=${encodeURIComponent(targetEmail)}`)}
               className="w-full py-3 bg-[#10B981] hover:bg-[#059669] text-[#0B1F33] hover:text-white font-black rounded-xl text-xs transition shadow-emerald flex items-center justify-center space-x-2"
             >
               <span>Sign In with New Password</span>
